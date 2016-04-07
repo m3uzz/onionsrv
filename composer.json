@@ -1,0 +1,43 @@
+{
+    "name": "onion/onionsrv",
+    "description": "Onion service framework lite",
+    "type": "library",
+    "keywords": [
+    	"m3uzz",
+        "onion",
+        "onionsrv",
+        "service",
+        "framework",
+        "lite"
+    ],
+    "homepage": "http://onion.m3uzz.com/",
+    "license": "BSD-3-Clause",
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "m3uzz/onionsrv",
+                "version": "master",
+                "dist": {
+                    "url": "https://github.com/m3uzz/onionsrv/archive/master.zip",
+                    "type": "zip"
+                },
+                "source": {
+                    "url": "https://github.com/m3uzz/onionsrv.git",
+                    "type": "git",
+                    "reference": "master"
+                }
+            }
+        }
+    ],
+    "require": {
+        "php": ">=5.4",
+        "m3uzz/onionlib": "master",
+        "phpmailer/phpmailer": "^5.2"
+    },
+    "autoload": {
+        "psr-0": {
+            "OnionSrv": "/m3uzz/onionsrv/src"
+        }
+    }
+}
