@@ -1,5 +1,5 @@
 {
-    "name": "onion/onionsrv",
+    "name": "m3uzz/onionsrv",
     "description": "Onion service framework lite",
     "authors": [
         {
@@ -38,8 +38,10 @@
     ],
     "require": {
         "php": ">=5.4",
-        "m3uzz/onionlib": "master",
-        "phpmailer/phpmailer": "^5.2"
+        "m3uzz/onionlib": "master"
+    },
+    "suggest": {
+    	"phpmailer/phpmailer": "^5.2"
     },
     "autoload": {
         "psr-0": {
