@@ -1,13 +1,14 @@
 {
     "name": "m3uzz/onionsrv",
     "description": "Onion service framework lite",
+    "homepage": "http://onion.m3uzz.com/",
+    "license": "BSD-3-Clause",
     "authors": [
         {
             "name": "Humberto S Lourenco",
             "email": "betto@m3uzz.com"
         }
     ],
-    "type": "library",
     "keywords": [
     	"m3uzz",
         "onion",
@@ -16,12 +17,11 @@
         "framework",
         "lite"
     ],
-    "homepage": "http://onion.m3uzz.com/",
-    "license": "BSD-3-Clause",
+    "type": "library",
     "repositories": [
         {
-            "type": "package",
-            "package": {
+            "type": "library",
+            "library": {
                 "name": "m3uzz/onionsrv",
                 "version": "master",
                 "dist": {
@@ -45,7 +45,7 @@
     },
     "autoload": {
         "psr-0": {
-            "OnionSrv": "src/"
+            "OnionSrv\\": "src/"
         }
     }
 }
