@@ -1,6 +1,12 @@
 {
     "name": "onion/onionsrv",
     "description": "Onion service framework lite",
+    "authors": [
+        {
+            "name": "Humberto S Lourenco",
+            "email": "betto@m3uzz.com"
+        }
+    ],
     "type": "library",
     "keywords": [
     	"m3uzz",
@@ -37,7 +43,7 @@
     },
     "autoload": {
         "psr-0": {
-            "OnionSrv": "/m3uzz/onionsrv/src"
+            "OnionSrv": "src/"
         }
     }
 }
