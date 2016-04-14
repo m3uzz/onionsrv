@@ -12,7 +12,7 @@ return array(
 	),
 	'log' => array(
 		'enable' => false,
-		'folder' => BASE_DIR . '/log',
+		'folder' => BASE_DIR . '/temp',
 		'chmod' => 0775,
 		'chown'	=> 'www-data',
 		'chgrp'	=> 'www-data',

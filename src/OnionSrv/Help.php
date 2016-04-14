@@ -92,15 +92,15 @@ class Help
 		$this->set("\n\n");
 		
 		$this->set("Usage: \n", self::BROWN, "", self::B);
-		$this->set("  php ./onionsrv.php [Module] [param1=<value1> [paramN=<valueN>]] [options]\n", self::GREEN, "", self::I);
-		$this->set("  php ./onionsrv.php [--m=<ModuleName>] --help\n", self::GREEN, "", self::I);
+		$this->set("  $ ./onionsrv.php [Module] [param1=<value1> [paramN=<valueN>]] [options]\n", self::GREEN, "", self::I);
+		$this->set("  $ ./onionsrv.php [--m=<ModuleName>] --help\n", self::GREEN, "", self::I);
 		
-		$this->setTopic("Module");
+		$this->setTopic("Route");
 		$this->setLine("--m=<ModuleName>", "Module name");
 		$this->setLine("--c=<ControllerName>", "Controller name");
 		$this->setLine("--a=<ActionName>", "Action name");
 		$this->setTopic("Options");
-		$this->setLine("--debug", "Activate debug mod");
+		$this->setLine("--debug", "Activate debug mod (check config/srv-config.php if debug is enable)");
 		$this->setLine("--error", "Activate php display error");
 		$this->setLine("--help", "Show this help");
 		$this->setLine("--test", "Activate test mod");

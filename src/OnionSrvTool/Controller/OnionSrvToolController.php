@@ -67,6 +67,14 @@ class OnionSrvToolController extends AbstractController
 	/**
 	 * 
 	 */
+	public function onionSrvToolAction ()
+	{
+		$this->help(true);
+	}
+	
+	/**
+	 * 
+	 */
 	public function newClientAction ()
 	{
 		$lsClient = $this->getRequest('client', "onionapp.com");
@@ -112,8 +120,6 @@ class OnionSrvToolController extends AbstractController
 	{
 		$lsClient = $this->getRequest('client', "onionapp.com");
 		$lsModule = $this->getRequest('module', "OnionApp");
-		
-		$lsRoute = String::slugfy($lsModule);
 		$lsModule = ucfirst($lsModule);
 		
 		$lsPathClient = CLIENT_DIR . DS . strtolower($lsClient);

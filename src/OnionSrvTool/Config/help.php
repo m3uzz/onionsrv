@@ -43,12 +43,28 @@
  */
 
 return array(
-	"OnionApp" => array(
-		"OnionApp" => array(
-			"onionApp" => array(
-				"desc" => "Action description",
+	"onionSrvTool" => array(
+		"onionSrvTool" => array(
+			"newClient" => array(
+				"desc" => "Create a new client structure folder",
 				"params" => array(
-					"paramName" => "Param value"
+					"client" => "Client folder name, eg.: onionapp.com [required]",
+					"module" => "Module name, eg.: OnionApp [optional]",
+					"name" => "Author name [optional]",
+					"email" => "Author e-mail [optional]",
+					"link" => "Project link or repository [optional]",
+					"cinit" => "Copyrigth year [optional]",
+				),
+			),
+			"newModule" => array(
+				"desc" => "Create a new module for a existent client",
+				"params" => array(
+					"client" => "Client folder name, eg.: onionapp.com [required]",
+					"module" => "Module name, eg.: OnionApp [required]",
+					"name" => "Author name [optional]",
+					"email" => "Author e-mail [optional]",
+					"link" => "Project link or repository [optional]",
+					"cinit" => "Copyrigth year [optional]",
 				),
 			),
 		),

@@ -116,15 +116,16 @@ abstract class AbstractController
 		$this->help();
 	}
 
-	
+
 	/**
 	 * 
+	 * @param bool $pbForce
 	 */
-	public function help ()
+	public function help ($pbForce = false)
 	{
 		global $gbHelp;
 		
-		if ($gbHelp)
+		if ($gbHelp || $pbForce)
 		{
 			$this->_bHelp = true;
 			
