@@ -35,7 +35,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @category   PHP
- * @package    Onion Service
+ * @package    OnionSrv
  * @author     Humberto Lourenço <betto@m3uzz.com>
  * @copyright  2014-2016 Humberto Lourenço <betto@m3uzz.com>
  * @license    http://www.opensource.org/licenses/BSD-3-Clause  The BSD 3-Clause License

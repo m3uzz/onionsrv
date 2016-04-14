@@ -1,3 +1,4 @@
+#!/usr/bin/env php
 <?php
 /**
  * This file is part of Onion Service
@@ -42,85 +43,16 @@
  * @link       http://github.com/m3uzz/onionsrv
  */
 
-namespace OnionSrv;
-use OnionSrv\Debug;
-use OnionSrv\System;
-use OnionSrv\Config;
-use OnionSrv\Event;
+defined('DS') 			|| define('DS', DIRECTORY_SEPARATOR);
+defined('PS')  			|| define('PS', PATH_SEPARATOR);
+defined('EOF') 			|| define('EOF', chr(13).chr(10));
+defined('BASE_DIR') 	|| define('BASE_DIR', realpath(dirname(__DIR__)));
+defined('VENDOR_DIR') 	|| define('VENDOR_DIR', BASE_DIR . DS . 'vendor');
+defined('CLIENT_DIR') 	|| define('CLIENT_DIR', BASE_DIR . DS . 'client');
+defined('MODULE_DIR') 	|| define('MODULE_DIR', VENDOR_DIR . DS . 'm3uzz');
+defined('CONFIG_DIR') 	|| define('CONFIG_DIR', MODULE_DIR . DS . 'onionsrv' . DS . 'src' . DS . 'OnionSrvTool' . DS . 'Config');
+defined('LOG_DIR') 		|| define('LOG_DIR', BASE_DIR . DS . 'temp');
 
-class Access
-{
-	public static function hasAccess ()
-	{
-		$lsIp = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : "";
-		$lsClient = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : "";
-		$lsToken = isset($_SERVER['HTTP_TOKEN']) ? $_SERVER['HTTP_TOKEN'] : "";
-		$lbReturn = false;
-		$lsStatus = "DENIED";
-		
-		Debug::debug(array($lsIp, $lsClient, $lsToken));
-		
-		$laAccess = Config::getOptions('access');
-		Debug::debug($laAccess);
+$_SERVER['argv'][] = "--m=onionSrvTool";
 
-		if (isset($laAccess[$lsIp]))
-		{
-			Debug::debug('1');
-			
-			if (isset($laAccess[$lsIp]['user-agent'][$lsClient]))
-			{
-				Debug::debug('1.1');
-				
-				if ($laAccess[$lsIp]['user-agent'][$lsClient] == $lsToken)
-				{
-					Debug::debug('1.1.1');
-					$lbReturn = true;
-				}
-			}
-			elseif (isset($laAccess[$lsIp]['user-agent']['*']))
-			{
-				Debug::debug('1.2');
-				
-				if ($laAccess[$lsIp]['user-agent']['*'] == $lsToken)
-				{
-					Debug::debug('1.2.1');
-					$lbReturn = true;
-				}
-			}
-		}
-		elseif (isset($laAccess['*']))
-		{
-			Debug::debug('2');
-			
-			if (isset($laAccess['*']['user-agent'][$lsClient]))
-			{
-				Debug::debug('2.1');
-				
-				if ($laAccess['*']['user-agent'][$lsClient] == $lsToken)
-				{
-					Debug::debug('2.1.1');
-					$lbReturn = true;
-				}
-			}
-			elseif (isset($laAccess['*']['user-agent']['*']))
-			{
-				Debug::debug('2.2');
-				
-				if ($laAccess['*']['user-agent']['*'] == $lsToken)
-				{
-					Debug::debug('2.2.2');
-					$lbReturn = true;
-				}
-			}
-		}
-		
-		if ($lbReturn)
-		{
-			$lsStatus = "PERMITED";
-		}
-
-		Event::log(array("ip:[{$lsIp}]", "user-agent:[{$lsClient}]", "token:[{$lsToken}]", "status:[{$lsStatus}]"), 'access');
-		
-		return $lbReturn;
-	}
-}
+include VENDOR_DIR . DS . 'm3uzz' . DS . 'onionsrv' . DS . 'onionInit.php';

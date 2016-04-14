@@ -1,0 +1,17 @@
+<?php
+#%LICENSE%#
+return array(
+	//ModuleName
+	"#%ACTION%#" => array(
+		//ControllerName
+		"#%ACTION%#" => array(
+			//ActionName
+			"#%ACTION%#" => array(
+				"desc" => "Action description",
+				"params" => array(
+					"paramName" => "Param value"
+				),
+			),
+		),
+	),
+);

@@ -1,0 +1,36 @@
+<?php
+#%LICENSE%#
+namespace #%MODULE%#\Controller;
+use OnionSrv\Abstracts\AbstractController;
+use #%MODULE%#\Repository\#%MODULE%#Repository;
+use OnionSrv\Config;
+use OnionSrv\Debug;
+
+class #%MODULE%#Controller extends AbstractController
+{
+
+	/**
+	 */
+	public function init ()
+	{
+		$laDbConf = Config::getOptions('db', 'srv-service.php');
+		
+		$this->_oRepository = new #%MODULE%#Repository($laDbConf);
+	}
+
+
+	/**
+	 */
+	public function #%ACTION%#Action ()
+	{
+		Debug::display("Helo world!");	
+	}
+
+
+	/**
+	 */
+	public function #%ACTION%#Test ()
+	{	
+		Debug::display("Helo world! (test)");	
+	}
+}

@@ -1,0 +1,42 @@
+<?php
+#%LICENSE%#
+namespace #%MODULE%#\Entity;
+use OnionSrv\Abstracts\Entity;
+use OnionSrv\Debug;
+
+/**
+ * Table schema
+ * @table = #%MODULE%#
+*/
+class #%MODULE%# extends Entity
+{
+	/**
+	 * @var integer PK
+	 */
+	protected $id;
+	
+	/**
+	 * @var integer
+	 */
+	protected $User_id;
+	
+	/**
+	 * @var datetime
+	 */
+	protected $dtInsert;
+	
+	/**
+	 * @var datetime
+	 */
+	protected $dtUpdate;
+	
+	/**
+	 * @var integer
+	 */
+	protected $numStatus = 0;
+	
+	/**
+	 * @var boolean
+	 */
+	protected $isActive = 1;
+}

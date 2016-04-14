@@ -35,7 +35,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @category   PHP
- * @package    Onion Service
+ * @package    OnionSrv
  * @author     Humberto Lourenço <betto@m3uzz.com>
  * @copyright  2014-2016 Humberto Lourenço <betto@m3uzz.com>
  * @license    http://www.opensource.org/licenses/BSD-3-Clause  The BSD 3-Clause License
@@ -449,6 +449,21 @@ class System
 
 	
 	/**
+	 * 
+	 * @param string $psPath
+	 */
+	public static function createDir ($psPath)
+	{
+		if (!file_exists($psPath))
+		{
+			mkdir($psPath);
+			
+			self::setCHMOD($psPath);
+		}
+	}
+	
+	
+	/**
 	 * createDateDir: parse uma data e devolve o caminho para o arquivo
 	 *
 	 * @param string $psPath
@@ -820,7 +835,14 @@ class System
 				}
 				else 
 				{
-					$lsString .= $psIdentation . "'$lsKey' => '$lmValue',\n";
+					if (preg_match("/\/\/array/", $lmValue))
+					{
+						$lsString .= $psIdentation . "'$lsKey' => " . substr($lmValue, 2) . ",\n";
+					}
+					else 
+					{
+						$lsString .= $psIdentation . "'$lsKey' => '$lmValue',\n";
+					}
 				}
 			}
 			

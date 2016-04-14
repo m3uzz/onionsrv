@@ -1,0 +1,8 @@
+<?php
+#%LICENSE%#
+defined('DS') 			|| define('DS', DIRECTORY_SEPARATOR);
+defined('CLIENT_DIR') 	|| define('CLIENT_DIR', realpath(dirname(__DIR__)));
+defined('BASE_DIR') 	|| define('BASE_DIR', realpath(dirname(dirname(dirname(__DIR__)))));
+defined('VENDOR_DIR') 	|| define('VENDOR_DIR', BASE_DIR . DS . 'vendor');
+
+include VENDOR_DIR . DS . 'm3uzz' . DS . 'onionsrv' . DS . 'onionInit.php';

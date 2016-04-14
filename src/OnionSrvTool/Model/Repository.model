@@ -1,0 +1,29 @@
+<?php
+#%LICENSE%#
+namespace #%MODULE%#\Repository;
+use OnionSrv\Abstracts\AbstractRepository;
+use OnionSrv\Debug;
+
+class #%MODULE%#Repository extends AbstractRepository
+{
+
+	/**
+	 * 
+	 * @param array $paDb
+	 */
+	public function __construct (array $paDb)
+	{
+		$this->setDbConf($paDb);
+	}
+
+
+	/**
+	 * 
+	 * @param int $pnStatus
+	 * @return array|boolean
+	 */
+	public function getData ($pnStatus)
+	{
+		return true;
+	}
+}
