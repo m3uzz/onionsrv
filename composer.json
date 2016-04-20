@@ -39,6 +39,7 @@
     "require": {
         "php": ">=5.4",
         "m3uzz/onionlib": "master"
+        "m3uzz/oniontool": "master"
     },
     "suggest": {
     	"phpmailer/phpmailer": "^5.2"

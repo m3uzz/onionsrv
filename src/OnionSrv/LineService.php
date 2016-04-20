@@ -157,8 +157,8 @@ class LineService
 			}
 				
 			$lsPath = Autoload::getNamespace(ucfirst($lsModule), $goLoader);
-			
-			$lsService = $lsPath . DS . ucfirst($lsModule) . DS . 'Controller' . DS .  ucfirst($lsController) . "Controller.php";
+
+			$lsService = $lsPath . DS . ucfirst($lsModule) . DS . 'controller' . DS .  ucfirst($lsController) . "Controller.php";
 			$lsClass = '\\' . ucfirst($lsModule) . '\\' . 'Controller' . '\\' .  ucfirst($lsController) . "Controller";
 				
 			if (TESTMOD)

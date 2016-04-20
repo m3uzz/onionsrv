@@ -81,6 +81,10 @@ class Autoload
 		{
 			$lsPath = $laPrefixes[ucfirst($psNamespace)][0];
 		}
+		elseif (isset($laPrefixes[ucfirst($psNamespace) . "\\"]))
+		{
+			$lsPath = $laPrefixes[ucfirst($psNamespace) . "\\"][0];
+		}
 			
 		return $lsPath;
 	}

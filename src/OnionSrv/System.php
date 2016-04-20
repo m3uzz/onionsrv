@@ -451,14 +451,17 @@ class System
 	/**
 	 * 
 	 * @param string $psPath
+	 * @param int $pnChmod
+	 * @param string $pnChown
+	 * @param string $pnChown
 	 */
-	public static function createDir ($psPath)
+	public static function createDir ($psPath, $pnChmod = null, $psChown = null, $psChgrp = null)
 	{
 		if (!file_exists($psPath))
 		{
 			mkdir($psPath);
 			
-			self::setCHMOD($psPath);
+			self::setCHMOD($psPath, $pnChmod, $psChown, $psChgrp);
 		}
 	}
 	

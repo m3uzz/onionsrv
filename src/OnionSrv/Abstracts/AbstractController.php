@@ -88,7 +88,7 @@ abstract class AbstractController
 		
 		$this->_sConfigPath = dirname(dirname(dirname(dirname($paService['service'])))) . DS . 'config';
 		
-		$this->_sViewPath = dirname(dirname($paService['service'])) . DS . 'View';
+		$this->_sViewPath = dirname(dirname($paService['service'])) . DS . 'view';
 		
 		$this->_sClass = $paService['class'];
 		

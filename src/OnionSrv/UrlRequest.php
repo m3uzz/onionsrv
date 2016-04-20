@@ -45,12 +45,6 @@
 namespace OnionSrv;
 use OnionSrv\Debug;
 
-defined('DS') 			|| define('DS', DIRECTORY_SEPARATOR);
-defined('BASE_DIR') 	|| define('BASE_DIR', realpath(dirname(__FILE__) . DS . ".." . DS . ".."));
-defined('CONFIG_DIR') 	|| define('CONFIG_DIR', realpath(dirname(__DIR__)) . DS . 'Config');
-defined('LIB_DIR') 		|| define('LIB_DIR', realpath(dirname(__DIR__)) . DS . 'Lib');
-defined('LOG_DIR') 		|| define('LOG_DIR', realpath(dirname(__DIR__)) . DS . 'Log');
-
 class UrlRequest
 {
 
@@ -201,8 +195,6 @@ class UrlRequest
 	
 	public function __construct()
 	{
-		include_once(LIB_DIR . DS . 'Debug.php');
-		
 		if(isset($_SERVER['HTTP_USER_AGENT'])){
 			$this->_sUserAgent = $_SERVER['HTTP_USER_AGENT'];
 		}

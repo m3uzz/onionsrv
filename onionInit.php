@@ -51,7 +51,7 @@ defined('CLIENT_DIR') 	|| define('CLIENT_DIR', BASE_DIR . DS . 'client');
 defined('VENDOR_DIR') 	|| define('VENDOR_DIR', BASE_DIR . DS . 'vendor');
 defined('CONFIG_DIR') 	|| define('CONFIG_DIR', CLIENT_DIR . DS . 'config');
 defined('MODULE_DIR') 	|| define('MODULE_DIR', CLIENT_DIR . DS . 'service');
-defined('LOG_DIR') 		|| define('LOG_DIR', BASE_DIR . DS . 'temp');
+defined('DATA_DIR') 	|| define('DATA_DIR', CLIENT_DIR . DS . 'data');
 
 // Composer autoloading
 if (file_exists(VENDOR_DIR . DS . 'autoload.php')) {
