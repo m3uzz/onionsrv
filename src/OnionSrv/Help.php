@@ -98,20 +98,20 @@ class Help
 		$this->set("\n\n");
 		
 		$this->set("Usage: \n", self::BROWN, "", self::B);
-		$this->set("  $ ./onionsrv.php [Module] [param1=<value1> [paramN=<valueN>]] [options]\n", self::GREEN, "", self::I);
-		$this->set("  $ ./onionsrv.php [--m=<ModuleName>] --help\n", self::GREEN, "", self::I);
+		$this->set("  $ ./onionsrv.php [Route] [param1=<value1> [paramN=<valueN>]] [options]\n", self::GREEN, "", self::I);
+		$this->set("  $ ./onionsrv.php [-m=<ModuleName>] --help\n", self::GREEN, "", self::I);
 		
 		$this->setTopic("Route");
-		$this->setLine("--m=<ModuleName>", "Module name");
-		$this->setLine("--c=<ControllerName>", "Controller name");
-		$this->setLine("--a=<ActionName>", "Action name");
+		$this->setLine("-m=<ModuleName>", "Module name");
+		$this->setLine("-c=<ControllerName>", "Controller name");
+		$this->setLine("-a=<ActionName>", "Action name");
 		$this->setTopic("Options");
-		$this->setLine("--debug, --d", "Activate debug mod (check config/srv-config.php if debug is enable)");
-		$this->setLine("--error, --e", "Activate php display error");
-		$this->setLine("--help, --h", "Show this help");
-		$this->setLine("--prompt, --p", "Activate prompt to input params");
+		$this->setLine("--debug, -d", "Activate debug mod (check config/srv-config.php if debug is enable)");
+		$this->setLine("--error, -e", "Activate php display error");
+		$this->setLine("--help, -h", "Show this help");
+		$this->setLine("--prompt, -p", "Activate prompt to input params");
 		$this->setLine("--test", "Activate test mod");
-		$this->setLine("--time, --t", "Activate time count");
+		$this->setLine("--time, -t", "Activate time count");
 		
 		return $this;
 	}

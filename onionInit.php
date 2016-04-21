@@ -70,23 +70,23 @@ if (PHP_SAPI == "cli" && isset($_SERVER['argv']) && is_array($_SERVER['argv']))
 {
 	foreach ($_SERVER['argv'] as $gsArg)
 	{
-		if ($gsArg === '--error' || $gsArg === '--e')
+		if ($gsArg === '--error' || $gsArg === '-e')
 		{
 			$gbPhpError = true;
 		}
 		
-		if ($gsArg === '--debug' || $gsArg === '--d')
+		if ($gsArg === '--debug' || $gsArg === '-d')
 		{
 			$gbDebug = true;
 			$gbTime = true;
 		}
 
-		if ($gsArg === '--time' || $gsArg === '--t')
+		if ($gsArg === '--time' || $gsArg === '-t')
 		{
 			$gbTime = true;
 		}
 		
-		if ($gsArg === '--help' || $gsArg === '--h')
+		if ($gsArg === '--help' || $gsArg === '-h')
 		{
 			$gbHelp = true;
 		}
@@ -96,7 +96,7 @@ if (PHP_SAPI == "cli" && isset($_SERVER['argv']) && is_array($_SERVER['argv']))
 			$gbTest = true;
 		}
 		
-		if ($gsArg === '--prompt' || $gsArg === '--p')
+		if ($gsArg === '--prompt' || $gsArg === '-p')
 		{
 			$gbPrompt = true;
 		}
