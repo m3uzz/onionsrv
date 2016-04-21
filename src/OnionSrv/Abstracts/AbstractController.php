@@ -46,6 +46,7 @@ namespace OnionSrv\Abstracts;
 use OnionSrv\Config;
 use OnionSrv\Debug;
 use OnionSrv\Help;
+use OnionSrv\System;
 
 abstract class AbstractController
 {
@@ -88,7 +89,7 @@ abstract class AbstractController
 		
 		$this->_sConfigPath = dirname(dirname(dirname(dirname($paService['service'])))) . DS . 'config';
 		
-		$this->_sViewPath = dirname(dirname($paService['service'])) . DS . 'view';
+		$this->_sViewPath = dirname(dirname($paService['service'])) . DS . 'View';
 		
 		$this->_sClass = $paService['class'];
 		
@@ -136,6 +137,15 @@ abstract class AbstractController
 				$this->moduleHelp($loHelp);
 			}
 			
+			$laHelpContent = $loHelp->getActionHelp($this->_sModule, $this->_sController, $this->_sAction);
+			
+			if (count($laHelpContent) == 0)
+			{
+				$laHelpContent = $loHelp->getControllerHelp($this->_sModule, $this->_sController);
+			}
+			
+			$loHelp->setModuleHelp($laHelpContent);
+			
 			$loHelp->display();
 		}
 	}
@@ -147,6 +157,7 @@ abstract class AbstractController
 	public function moduleHelp ($poHelp)
 	{
 		$poHelp->factory($this->_sConfigPath);
+		
 	}
 	
 	
@@ -212,7 +223,32 @@ abstract class AbstractController
 		}
 		else
 		{
-			return $pmDefault;
+			if (PHP_SAPI == "cli" && PROMPT)
+			{
+				$loHelp = new Help();
+				$loHelp->factory($this->_sConfigPath);
+				$lsVarHelp = $loHelp->getParamHelp($this->_sModule, $this->_sController, $this->_sAction, $psVar);
+				
+				echo("$lsVarHelp\n");
+				$lsAnswer = System::prompt("Enter param [$psVar]:");
+					
+				if ($this->validateValue($psVar, $lsAnswer, 'ARG'))
+				{
+					$this->_aParams['ARG'][$psVar] = $lsAnswer;
+					
+					return $lsAnswer;
+				}
+				else
+				{
+					Debug::echoError("The param value do not match to the expected!");
+					Debug::echoError("Try --help!");
+					Debug::exitError("ABORTING SCRIPT EXECUTION!");
+				}
+			}
+			else
+			{
+				return $pmDefault;
+			}
 		}
 	}
 
@@ -252,20 +288,33 @@ abstract class AbstractController
 		{
 			foreach ($this->_aParams[$psType] as $lsVar => $lsValue)
 			{
-				if (isset($this->_aFilters[$psType][$lsVar]))
-				{
-					$lsFilter = $this->_aFilters[$psType][$lsVar];
-					
-					if (! preg_match("/$lsFilter/", $lsValue))
-					{
-						unset($this->_aParams[$psType][$lsVar]);
-					}
-				}
-				else
+				if (!$this->validateValue($lsVar, $lsValue, $psType))
 				{
 					unset($this->_aParams[$psType][$lsVar]);
 				}
 			}
 		}
+	}
+	
+	
+	/**
+	 * @param string $psVar
+	 * @param string $psValue
+	 * @param string $psType
+	 * @return bool
+	 */
+	public function validateValue ($psVar, $psValue, $psType = 'GET')
+	{
+		if (isset($this->_aFilters[$psType][$psVar]))
+		{
+			$lsFilter = $this->_aFilters[$psType][$psVar];
+			
+			if (empty($lsFilter) || preg_match("/$lsFilter/", $psValue))
+			{
+				return true;
+			}
+		}
+		
+		return false;
 	}
 }

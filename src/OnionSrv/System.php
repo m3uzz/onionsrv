@@ -49,7 +49,24 @@ use OnionSrv\Config;
 
 class System
 {
+	
+	/**
+	 * 
+	 * @param string $psQuestion
+	 * @return string
+	 */
+	public static function prompt ($psQuestion)
+	{
+		echo "\e[34m" . $psQuestion . "\e[0m ";
+		
+		$lrRandle = fopen("php://stdin", "r");
+		$lsAnswer = fgets($lrRandle);
+		fclose($lrRandle);
+		
+		return trim($lsAnswer);
+	}
 
+	
 	/**
 	 * Manipulate a URI to return an URI parsed array:
 	 *
@@ -440,11 +457,11 @@ class System
 		}
 	
 		Debug::debug("chmod {$pnChmod} {$psFile}");
-		chmod($psFile, $pnChmod);
+		@chmod($psFile, $pnChmod);
 		Debug::debug("chown {$psChown} {$psFile}");
-		chown($psFile, $psChown);
+		@chown($psFile, $psChown);
 		Debug::debug("chgrp {$psChgrp} {$psFile}");
-		chgrp($psFile, $psChgrp);
+		@chgrp($psFile, $psChgrp);
 	}
 
 	
@@ -703,7 +720,7 @@ class System
 		}
 		else 
 		{
-			throw new Exception("Failed when tring to write in $psFileName!");
+			throw new \Exception("Failed when tring to write in $psFileName!");
 		}
 		
 		return true;
@@ -719,7 +736,7 @@ class System
 	{
 		if (!unlink($psFileNome))
 		{
-			throw new Exception("Failed when tring to remove file $psFileNome from the system!");
+			throw new \Exception("Failed when tring to remove file $psFileNome from the system!");
 		}
 		
 		return true;

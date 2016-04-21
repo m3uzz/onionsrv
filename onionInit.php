@@ -63,29 +63,30 @@ $gbDebug = false;
 $gbTime = false;
 $gbHelp = false;
 $gbTest = false;
+$gbPrompt = false;
 $gaTimer = array();
 
 if (PHP_SAPI == "cli" && isset($_SERVER['argv']) && is_array($_SERVER['argv']))
 {
 	foreach ($_SERVER['argv'] as $gsArg)
 	{
-		if ($gsArg === '--error')
+		if ($gsArg === '--error' || $gsArg === '--e')
 		{
 			$gbPhpError = true;
 		}
 		
-		if ($gsArg === '--debug')
+		if ($gsArg === '--debug' || $gsArg === '--d')
 		{
 			$gbDebug = true;
 			$gbTime = true;
 		}
 
-		if ($gsArg === '--time')
+		if ($gsArg === '--time' || $gsArg === '--t')
 		{
 			$gbTime = true;
 		}
 		
-		if ($gsArg === '--help')
+		if ($gsArg === '--help' || $gsArg === '--h')
 		{
 			$gbHelp = true;
 		}
@@ -93,6 +94,11 @@ if (PHP_SAPI == "cli" && isset($_SERVER['argv']) && is_array($_SERVER['argv']))
 		if ($gsArg === '--test')
 		{
 			$gbTest = true;
+		}
+		
+		if ($gsArg === '--prompt' || $gsArg === '--p')
+		{
+			$gbPrompt = true;
 		}
 	}
 }
@@ -122,7 +128,7 @@ else
 
 use OnionSrv\Config;
 
-Config::setDebugMod($gbDebug, $gbPhpError, $gbTime, $gbTest);
+Config::setDebugMod($gbDebug, $gbPhpError, $gbTime, $gbTest, $gbPrompt);
 Config::setTimeZone();
 
 use OnionSrv\Autoload;

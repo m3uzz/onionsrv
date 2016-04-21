@@ -245,6 +245,46 @@ class Debug
 		}
 	}
 	
+
+	/**
+	 *
+	 * @param unknown $psMsgError
+	 */
+	public static function echoError ($psMsgError)
+	{
+		echo ("\e[31mERROR - " . $psMsgError . "\e[0m\n\n");
+	}
+	
+	
+	/**
+	 *
+	 * @param unknown $psMsgWarning
+	 */
+	public static function echoWarning ($psMsgWarning)
+	{
+		echo ("\e[33mWARNING - " . $psMsgWarning . "\e[0m\n\n");
+	}
+	
+	
+	/**
+	 *
+	 * @param unknown $psMsgSuccess
+	 */
+	public static function echoSuccess ($psMsgSuccess)
+	{
+		echo ("\e[32mSUCCESS - " . $psMsgSuccess . "\e[0m\n\n");
+	}
+	
+	
+	/**
+	 *
+	 * @param unknown $psMsgError
+	 */
+	public static function echoInfo ($psMsgInfo)
+	{
+		echo ("\e[34m" . $psMsgInfo . "\e[0m\n\n");
+	}
+	
 	
 	/**
 	 * 
@@ -252,8 +292,9 @@ class Debug
 	 */
 	public static function exitError ($psMsgError)
 	{
-		die ("\e[31mERROR - " . $psMsgError . "\e[0m\n\n");
+		die (self::echoError($psMsgError));
 	}
+	
 	
 	/**
 	 *
@@ -261,8 +302,9 @@ class Debug
 	 */
 	public static function exitWarning ($psMsgWarning)
 	{
-		die ("\e[33mWARNING - " . $psMsgWarning . "\e[0m\n\n");
+		die (self::echoWarning($psMsgWarning));
 	}
+	
 	
 	/**
 	 *
@@ -270,8 +312,9 @@ class Debug
 	 */
 	public static function exitSuccess ($psMsgSuccess)
 	{
-		die ("\e[32mSUCCESS - " . $psMsgSuccess . "\e[0m\n\n");
+		die (self::echoSuccess($psMsgSuccess));
 	}
+	
 	
 	/**
 	 *
@@ -279,6 +322,6 @@ class Debug
 	 */
 	public static function exitInfo ($psMsgInfo)
 	{
-		die ("\e[34mINFO - " . $psMsgInfo . "\e[0m\n\n");
+		die (self::echoInfo($psMsgInfo));
 	}
 }

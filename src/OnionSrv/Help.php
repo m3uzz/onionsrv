@@ -44,6 +44,8 @@
 
 namespace OnionSrv;
 use OnionSrv\Config;
+use OnionSrv\Debug;
+use OnionLib\String;
 
 class Help
 {
@@ -80,6 +82,10 @@ class Help
 	private $_sLastTopic = "";
 	
 	
+	/**
+	 * 
+	 * @return \OnionSrv\Help
+	 */
 	public function __construct ()
 	{
 		$this->set("        *** m3uzz OnionSrv - Version: " . self::VERSION . " ***        ", self::PURPLE, self::BGBLACK);
@@ -100,13 +106,97 @@ class Help
 		$this->setLine("--c=<ControllerName>", "Controller name");
 		$this->setLine("--a=<ActionName>", "Action name");
 		$this->setTopic("Options");
-		$this->setLine("--debug", "Activate debug mod (check config/srv-config.php if debug is enable)");
-		$this->setLine("--error", "Activate php display error");
-		$this->setLine("--help", "Show this help");
+		$this->setLine("--debug, --d", "Activate debug mod (check config/srv-config.php if debug is enable)");
+		$this->setLine("--error, --e", "Activate php display error");
+		$this->setLine("--help, --h", "Show this help");
+		$this->setLine("--prompt, --p", "Activate prompt to input params");
 		$this->setLine("--test", "Activate test mod");
-		$this->setLine("--time", "Activate time count");
+		$this->setLine("--time, --t", "Activate time count");
 		
 		return $this;
+	}
+	
+	
+	/**
+	 *
+	 * @param string $psModule
+	 */
+	public function getModuleHelp ($psModule)
+	{
+		$psModule = String::lcfirst($psModule);
+	
+		if (isset($this->_aModuleHelp[$psModule]))
+		{
+			$laModule[$psModule] = $this->_aModuleHelp[$psModule];
+			
+			return $laModule;
+		}
+		
+		return array();
+	}
+	
+	
+	/**
+	 *
+	 * @param string $psModule
+	 * @param string $psController
+	 */
+	public function getControllerHelp ($psModule, $psController)
+	{
+		$psModule = String::lcfirst($psModule);
+		$psController = String::lcfirst($psController);
+	
+		if (isset($this->_aModuleHelp[$psModule][$psController]))
+		{
+			$laModule[$psModule][$psController] = $this->_aModuleHelp[$psModule][$psController];
+				
+			return $laModule;
+		}
+	
+		return array();
+	}
+	
+	
+	/**
+	 *
+	 * @param string $psModule
+	 * @param string $psController
+	 * @param string $psAction
+	 */
+	public function getActionHelp ($psModule, $psController, $psAction)
+	{
+		$psModule = String::lcfirst($psModule);
+		$psController = String::lcfirst($psController);
+	
+		if (isset($this->_aModuleHelp[$psModule][$psController][$psAction]))
+		{
+			$laModule[$psModule][$psController][$psAction] = $this->_aModuleHelp[$psModule][$psController][$psAction];
+			
+			return $laModule;
+		}
+	
+		return array();
+	}
+	
+	
+	/**
+	 * 
+	 * @param string $psModule
+	 * @param string $psController
+	 * @param string $psAction
+	 * @param string $psParam
+	 */
+	public function getParamHelp ($psModule, $psController, $psAction, $psParam)
+	{
+		$psModule = String::lcfirst($psModule);
+		$psController = String::lcfirst($psController);
+		
+		if (isset($this->_aModuleHelp[$psModule][$psController][$psAction]["params"][$psParam]))
+		{
+			return $this->_aModuleHelp[$psModule][$psController][$psAction]["params"][$psParam];
+		}
+		
+		return null;
 	}
 	
 	
@@ -195,12 +285,12 @@ class Help
 	
 	/**
 	 * 
-	 * @param unknown $lsModule
+	 * @param array $laModule
 	 * @return \OnionSrv\Help
 	 */
-	public function setModule ($lsModule)
+	public function setModuleHelp (array $laModule)
 	{
-		
+		$this->_aModuleHelp = $laModule;
 
 		return $this;
 	}

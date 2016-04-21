@@ -135,7 +135,7 @@ class Config
 	 * @param boolean $pbTime
 	 * @param boolean $pbTest
 	 */
-	public static function setDebugMod ($pbDebug=false, $pbPhpError=false, $pbTime=false, $pbTest = false)
+	public static function setDebugMod ($pbDebug=false, $pbPhpError=false, $pbTime=false, $pbTest = false, $pbPrompt=false)
 	{
 		$lbDebugMod = false;
 		$laDebug = self::getOptions('debug');
@@ -185,5 +185,7 @@ class Config
 		{
 			defined('TESTMOD') || define('TESTMOD', false);
 		}
+		
+		defined('PROMPT') || define('PROMPT', $pbPrompt);
 	}
 }

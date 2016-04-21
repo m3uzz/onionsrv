@@ -101,6 +101,7 @@ class LineService
 		{
 			$loHelp = new Help;
 			$loHelp->factory(dirname(dirname(dirname(dirname($paService['service'])))) . DS . 'config');
+			$loHelp->setModuleHelp($loHelp->getModuleHelp($paService['module']));
 			$loHelp->display();
 		}
 	}
@@ -158,7 +159,7 @@ class LineService
 				
 			$lsPath = Autoload::getNamespace(ucfirst($lsModule), $goLoader);
 
-			$lsService = $lsPath . DS . ucfirst($lsModule) . DS . 'controller' . DS .  ucfirst($lsController) . "Controller.php";
+			$lsService = $lsPath . DS . ucfirst($lsModule) . DS . 'Controller' . DS .  ucfirst($lsController) . "Controller.php";
 			$lsClass = '\\' . ucfirst($lsModule) . '\\' . 'Controller' . '\\' .  ucfirst($lsController) . "Controller";
 				
 			if (TESTMOD)
