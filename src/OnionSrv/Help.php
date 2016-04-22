@@ -118,6 +118,18 @@ class Help
 	
 	
 	/**
+	 * 
+	 */
+	public function clear ()
+	{
+		$this->_aList = array();
+		$this->_aHelp = array();
+		$this->_aModuleHelp = null;
+		$this->_sLastTopic = "";
+	}
+	
+	
+	/**
 	 *
 	 * @param string $psModule
 	 */
