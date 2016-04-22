@@ -91,7 +91,7 @@ if (PHP_SAPI == "cli" && isset($_SERVER['argv']) && is_array($_SERVER['argv']))
 			$gbHelp = true;
 		}
 		
-		if ($gsArg === '--test')
+		if ($gsArg === '--test' || $gsArg === '-T')
 		{
 			$gbTest = true;
 		}

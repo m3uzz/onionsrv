@@ -129,12 +129,18 @@ class LineService
 				
 				switch ($laArg[0])
 				{
+					case '--mod':
+					case '--m':
 					case '-m':
 						$lsModule = $laArg[1];
 					break;
+					case '--ctr':
+					case '--c':
 					case '-c':
 						$lsController = $laArg[1];
 					break;
+					case '--act':
+					case '--a':
 					case '-a':
 						$lsAction = $laArg[1];
 					break;

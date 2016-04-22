@@ -106,12 +106,12 @@ class Help
 		$this->setLine("-c=<ControllerName>", "Controller name");
 		$this->setLine("-a=<ActionName>", "Action name");
 		$this->setTopic("Options");
-		$this->setLine("--debug, -d", "Activate debug mod (check config/srv-config.php if debug is enable)");
-		$this->setLine("--error, -e", "Activate php display error");
-		$this->setLine("--help, -h", "Show this help");
-		$this->setLine("--prompt, -p", "Activate prompt to input params");
-		$this->setLine("--test", "Activate test mod");
-		$this->setLine("--time, -t", "Activate time count");
+		$this->setLine("-d, --debug", "Activate debug mod (check config/srv-config.php if debug is enable)");
+		$this->setLine("-e, --error", "Activate php display error");
+		$this->setLine("-h, --help", "Show this help");
+		$this->setLine("-p, --prompt", "Activate prompt to input params");
+		$this->setLine(",T, --test", "Activate test mod");
+		$this->setLine(",t, --time", "Activate time count");
 		
 		return $this;
 	}
