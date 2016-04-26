@@ -50,6 +50,23 @@ use OnionSrv\Config;
 class System
 {
 	
+	
+	/**
+	 *
+	 * @param string $psQuestion
+	 * @return string
+	 */
+	public static function confirm ($psQuestion)
+	{
+		echo "\e[34m" . $psQuestion . " [Y/n]:\e[0m ";
+	
+		$lrRandle = fopen("php://stdin", "r");
+		$lsAnswer = fgets($lrRandle);
+		fclose($lrRandle);
+	
+		return strtolower(trim($lsAnswer));
+	}
+	
 	/**
 	 * 
 	 * @param string $psQuestion
