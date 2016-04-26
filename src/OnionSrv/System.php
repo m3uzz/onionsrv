@@ -687,8 +687,8 @@ class System
 	{
 		if (file_exists($psOrigem))
 		{
-			Debug::debug('ln -s ' . $psOrigem);
-			self::execute("ln -s $psOrigem $psLink");
+			Debug::debug("ln -s {$psOrigem} {$psLink}");
+			self::execute("ln -s {$psOrigem} {$psLink}");
 		}
 		else
 		{
@@ -734,9 +734,16 @@ class System
 	 */
 	public static function removeFile ($psFileNome)
 	{
-		if (!unlink($psFileNome))
+		if (is_file($psFileNome))
 		{
-			throw new \Exception("Failed when tring to remove file $psFileNome from the system!");
+			if (!unlink($psFileNome))
+			{
+				throw new \Exception("Failed when tring to remove file $psFileNome from the system!");
+			}
+		}
+		else
+		{
+			Debug::debug($psFileNome . ' not found.');
 		}
 		
 		return true;
@@ -749,7 +756,7 @@ class System
 	 */
 	public static function removeDir ($psPath)
 	{
-		if (file_exists($psPath))
+		if (is_dir($psPath))
 		{
 			Debug::debug('rm -rf ' . $psPath);
 			self::execute("rm -rf $psPath");

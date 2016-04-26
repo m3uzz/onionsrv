@@ -213,9 +213,10 @@ abstract class AbstractController
 	 * 
 	 * @param string $psVar
 	 * @param string $pmDefault
+	 * @param string $pbEmpty
 	 * @return string
 	 */
-	public function getRequestArg ($psVar, $pmDefault = null)
+	public function getRequestArg ($psVar, $pmDefault = null, $pbEmpty = true)
 	{
 		if (isset($this->_aParams['ARG'][$psVar]))
 		{
@@ -236,13 +237,41 @@ abstract class AbstractController
 				{
 					$this->_aParams['ARG'][$psVar] = $lsAnswer;
 					
-					return $lsAnswer;
+					if (!empty($lsAnswer))
+					{
+						return $lsAnswer;
+					}
+					elseif (!empty($pmDefault)) 
+					{
+						return $pmDefault;
+					}
+					elseif($pbEmpty)
+					{
+						return null;
+					}
+					else 
+					{
+						Debug::echoError("The param value is required to continue!");
+						Debug::echoError("Try --help!");
+						Debug::exitError("ABORTING SCRIPT EXECUTION!");
+					}
 				}
 				else
 				{
-					Debug::echoError("The param value do not match to the expected!");
-					Debug::echoError("Try --help!");
-					Debug::exitError("ABORTING SCRIPT EXECUTION!");
+					if (empty($lsAnswer) && !empty($pmDefault))
+					{
+						return $pmDefault;
+					}
+					elseif(empty($lsAnswer) && empty($pmDefault) && $pbEmpty)
+					{
+						return null;
+					}
+					else
+					{
+						Debug::echoError("The param value do not match to the expected!");
+						Debug::echoError("Try --help!");
+						Debug::exitError("ABORTING SCRIPT EXECUTION!");
+					}
 				}
 			}
 			else
@@ -257,11 +286,12 @@ abstract class AbstractController
 	 * 
 	 * @param string $psVar
 	 * @param string $pmDefault
+	 * @param string $pbEmpty
 	 * @return Ambigous <string, string>
 	 */
-	public function getRequest ($psVar, $pmDefault = null)
+	public function getRequest ($psVar, $pmDefault = null, $pbEmpty = true)
 	{
-		return $this->getRequestArg($psVar, $this->getRequestGet($psVar, $this->getRequestPost($psVar, $pmDefault)));
+		return $this->getRequestArg($psVar, $this->getRequestGet($psVar, $this->getRequestPost($psVar, $pmDefault)), $pbEmpty);
 	}
 
 	

@@ -110,8 +110,8 @@ class Help
 		$this->setLine("-e, --error", "Activate php display error");
 		$this->setLine("-h, --help", "Show this help");
 		$this->setLine("-p, --prompt", "Activate prompt to input params");
-		$this->setLine(",T, --test", "Activate test mod");
-		$this->setLine(",t, --time", "Activate time count");
+		$this->setLine("-T, --test", "Activate test mod");
+		$this->setLine("-t, --time", "Activate time count");
 		
 		return $this;
 	}
