@@ -121,8 +121,9 @@ abstract class AbstractController
 	/**
 	 * 
 	 * @param bool $pbForce
+	 * @param bool $lbGeneral
 	 */
-	public function help ($pbForce = false)
+	public function help ($pbForce = false, $lbGeneral = false)
 	{
 		global $gbHelp;
 		
@@ -137,14 +138,17 @@ abstract class AbstractController
 				$this->moduleHelp($loHelp);
 			}
 			
-			$laHelpContent = $loHelp->getActionHelp($this->_sModule, $this->_sController, $this->_sAction);
-			
-			if (count($laHelpContent) == 0)
+			if (!$lbGeneral)
 			{
-				$laHelpContent = $loHelp->getControllerHelp($this->_sModule, $this->_sController);
-			}
+				$laHelpContent = $loHelp->getActionHelp($this->_sModule, $this->_sController, $this->_sAction);
 			
-			$loHelp->setModuleHelp($laHelpContent);
+				if (count($laHelpContent) == 0)
+				{
+					$laHelpContent = $loHelp->getControllerHelp($this->_sModule, $this->_sController);
+				}
+			
+				$loHelp->setModuleHelp($laHelpContent);
+			}
 			
 			$loHelp->display();
 		}
@@ -216,7 +220,7 @@ abstract class AbstractController
 	 * @param string $pbEmpty
 	 * @return string
 	 */
-	public function getRequestArg ($psVar, $pmDefault = null, $pbEmpty = true)
+	public function getRequestArg ($psVar, $pmDefault = null, $pbRequired = false)
 	{
 		if (isset($this->_aParams['ARG'][$psVar]))
 		{
@@ -226,11 +230,35 @@ abstract class AbstractController
 		{
 			if (PHP_SAPI == "cli" && PROMPT)
 			{
+				$lsMsgHelp = "";
+				$lsMsgHelpSeparate = "";
+				
 				$loHelp = new Help();
 				$loHelp->factory($this->_sConfigPath);
 				$lsVarHelp = $loHelp->getParamHelp($this->_sModule, $this->_sController, $this->_sAction, $psVar);
 				
-				echo("$lsVarHelp\n");
+				if (!empty($lsVarHelp))
+				{
+					$lsMsgHelp = $lsVarHelp;
+					$lsMsgHelpSeparate = ". ";
+				}
+				
+				if ($pmDefault != null)
+				{
+					$lsMsgHelp .= "{$lsMsgHelpSeparate}Default: ({$pmDefault})";
+					$lsMsgHelpSeparate = ". ";
+				}
+				
+				if ($pbRequired)
+				{
+					$lsMsgHelp .= "{$lsMsgHelpSeparate}[required]";
+				}
+				
+				if (!empty($lsMsgHelp))
+				{
+					echo("{$lsMsgHelp}\n");
+				}
+				
 				$lsAnswer = System::prompt("Enter param [$psVar]:");
 					
 				if ($this->validateValue($psVar, $lsAnswer, 'ARG'))
@@ -243,9 +271,10 @@ abstract class AbstractController
 					}
 					elseif (!empty($pmDefault)) 
 					{
+						$this->_aParams['ARG'][$psVar] = $pmDefault;
 						return $pmDefault;
 					}
-					elseif($pbEmpty)
+					elseif(!$pbRequired)
 					{
 						return null;
 					}
@@ -260,9 +289,10 @@ abstract class AbstractController
 				{
 					if (empty($lsAnswer) && !empty($pmDefault))
 					{
+						$this->_aParams['ARG'][$psVar] = $pmDefault;
 						return $pmDefault;
 					}
-					elseif(empty($lsAnswer) && empty($pmDefault) && $pbEmpty)
+					elseif(empty($lsAnswer) && empty($pmDefault) && !$pbRequired)
 					{
 						return null;
 					}

@@ -50,7 +50,9 @@ abstract class AbstractRepository
 
 	protected $_aConfDb = array();
 
-	protected $_oDb;
+	protected $_oDb = null;
+	
+	protected $_aError = null;
 
 	
 	/**
@@ -62,6 +64,66 @@ abstract class AbstractRepository
 		$this->setDbConf($paDb);
 	}
 
+	
+	/**
+	 *
+	 * @return bool
+	 */
+	public function hasError ()
+	{
+		if ($this->_aError != null);
+		{
+			return true;
+		}
+		
+		return false;
+	}
+	
+	
+	/**
+	 * 
+	 * @return string|null
+	 */
+	public function getErrorMsg ()
+	{
+		if (isset($this->_aError[2]))
+		{
+			return $this->_aError[2];
+		}
+		
+		return null;
+	}
+	
+	
+	/**
+	 *
+	 * @return string|null
+	 */
+	public function getErrorCode ()
+	{
+		if (isset($this->_aError[1]))
+		{
+			return $this->_aError[1];
+		}
+	
+		return null;
+	}
+	
+	
+	/**
+	 *
+	 * @return string|null
+	 */
+	public function getError ()
+	{
+		if (is_array($this->_aError))
+		{
+			return $this->_aError;
+		}
+	
+		return null;
+	}
+	
 	
 	/**
 	 * 
@@ -88,6 +150,7 @@ abstract class AbstractRepository
 	/**
 	 * 
 	 * @param array $paConfDb
+	 * @return bool
 	 */
 	public function connect (array $paConfDb = null)
 	{
@@ -101,8 +164,20 @@ abstract class AbstractRepository
 		$lsPass = $paConfDb['pass'];
 		
 		Debug::debug(array($lsCon, $lsUser, $lsPass));
-		$this->_oDb = new \PDO($lsCon, $lsUser, $lsPass);
-		Debug::debug($this->_oDb);
+		
+		try {
+			$this->_oDb = new \PDO($lsCon, $lsUser, $lsPass);
+			Debug::debug($this->_oDb);
+			
+			return true;
+		}
+		catch (\PDOException $e) {
+			$this->_aError[1] = $e->getCode();
+			$this->_aError[2] = $e->getMessage();
+			Debug::debug($this->_aError);
+			
+			return false;
+		}
 	}
 
 	
@@ -141,44 +216,81 @@ abstract class AbstractRepository
 	 *
 	 * @param string $psSql        	
 	 * @param string $psEntity        	
-	 * @return array|array of object|bool:
+	 * @return array|array of object|bool
 	 */
 	public function queryExec ($psSql, $psEntity = "", array $paConfDb = null)
 	{
 		Debug::debug($psSql);
 		
-		$this->connect($paConfDb);
-		
-		$loStantement = $this->_oDb->prepare($psSql);
-		
-		$this->_oDb = null;
-		
-		if ($loStantement->execute())
-		{ 
-			if (!empty($psEntity))
-			{
-				$laResultSet = $loStantement->fetchAll(\PDO::FETCH_CLASS, $psEntity);
-			}
-			else 
-			{
-				$laResultSet = $loStantement->fetchAll();
-			}
-			
-			Debug::debug($laResultSet);
-		
-			if (is_array($laResultSet) && count($laResultSet) > 0)
-			{
-				return $laResultSet;
-			}
-		}
-		else
+		if ($this->connect($paConfDb))
 		{
-			Debug::display($loStantement->errorInfo());
+			$loStantement = $this->_oDb->prepare($psSql);
+			
+			$this->_oDb = null;
+			
+			if ($loStantement->execute())
+			{ 
+				if (!empty($psEntity))
+				{
+					$laResultSet = $loStantement->fetchAll(\PDO::FETCH_CLASS, $psEntity);
+				}
+				else 
+				{
+					$laResultSet = $loStantement->fetchAll();
+				}
+				
+				Debug::debug($laResultSet);
+			
+				if (is_array($laResultSet) && count($laResultSet) > 0)
+				{
+					return $laResultSet;
+				}
+			}
+			else
+			{
+				$this->_aError = $loStantement->errorInfo();
+				Debug::debug($this->_aError);
+			}
 		}
-		
+				
 		return false;
 	}
 
+	
+	/**
+	 *
+	 * @param string $psSql
+	 * @param array $paConfDb
+	 * @return boolean
+	 */
+	public function execute ($psSql, array $paConfDb = null)
+	{
+		Debug::debug($psSql);
+	
+		if ($this->connect($paConfDb))
+		{
+			$loStantement = $this->_oDb->prepare($psSql);
+	
+			$lbReturn = $loStantement->execute();
+			
+			if ($lbReturn)
+			{
+				Debug::debug("SQL execute OK");
+			}
+			else
+			{
+				$this->_aError = $loStantement->errorInfo();
+				Debug::debug($this->_aError);
+			}
+		
+			$this->_oDb = null;
+			
+			return $lbReturn;
+		}
+			
+		return false;
+	}
+	
 	
 	/**
 	 * 
@@ -188,25 +300,7 @@ abstract class AbstractRepository
 	 */
 	public function update ($psSql, array $paConfDb = null)
 	{
-		Debug::debug($psSql);
-		
-		$this->connect($paConfDb);
-		
-		$loStantement = $this->_oDb->prepare($psSql);
-		$lbReturn = $loStantement->execute();
-		
-		if (!$lbReturn)
-		{
-			Debug::display($loStantement->errorInfo());
-		}
-		else
-		{
-			Debug::debug($lbReturn);
-		}
-		
-		$this->_oDb = null;
-		
-		return $lbReturn;
+		return $this->execute($psSql, $paConfDb);
 	}
 
 	
@@ -218,27 +312,21 @@ abstract class AbstractRepository
 	 */
 	public function insert ($psSql, array $paConfDb = null)
 	{
-		Debug::debug($psSql);
-	
-		$this->connect($paConfDb);
-	
-		$loStantement = $this->_oDb->prepare($psSql);
-		$lbReturn = $loStantement->execute();
-	
-		if (!$lbReturn)
-		{
-			Debug::display($loStantement->errorInfo());
-		}
-		else
-		{
-			Debug::debug($lbReturn);
-		}
-		
-		$this->_oDb = null;
-		
-		return $lbReturn;
+		return $this->execute($psSql, $paConfDb);
 	}
 		
+	
+	/**
+	 *
+	 * @param string $psSql
+	 * @param array $paConfDb
+	 * @return boolean
+	 */
+	public function create ($psSql, array $paConfDb = null)
+	{
+		return $this->execute($psSql, $paConfDb);
+	}
+	
 	
 	/**
 	 *

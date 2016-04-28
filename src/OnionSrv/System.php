@@ -50,6 +50,85 @@ use OnionSrv\Config;
 class System
 {
 	
+	/**
+	 *
+	 * @param unknown $psMsgError
+	 */
+	public static function echoError ($psMsgError)
+	{
+		echo ("\e[31mERROR - " . $psMsgError . "\e[0m\n\n");
+	}
+	
+	
+	/**
+	 *
+	 * @param unknown $psMsgWarning
+	 */
+	public static function echoWarning ($psMsgWarning)
+	{
+		echo ("\e[33mWARNING - " . $psMsgWarning . "\e[0m\n\n");
+	}
+	
+	
+	/**
+	 *
+	 * @param unknown $psMsgSuccess
+	 */
+	public static function echoSuccess ($psMsgSuccess)
+	{
+		echo ("\e[32mSUCCESS - " . $psMsgSuccess . "\e[0m\n\n");
+	}
+	
+	
+	/**
+	 *
+	 * @param unknown $psMsgError
+	 */
+	public static function echoInfo ($psMsgInfo)
+	{
+		echo ("\e[34m" . $psMsgInfo . "\e[0m\n\n");
+	}
+	
+	
+	/**
+	 *
+	 * @param unknown $psMsgError
+	 */
+	public static function exitError ($psMsgError)
+	{
+		die (self::echoError($psMsgError));
+	}
+	
+	
+	/**
+	 *
+	 * @param unknown $psMsgWarning
+	 */
+	public static function exitWarning ($psMsgWarning)
+	{
+		die (self::echoWarning($psMsgWarning));
+	}
+	
+	
+	/**
+	 *
+	 * @param unknown $psMsgSuccess
+	 */
+	public static function exitSuccess ($psMsgSuccess)
+	{
+		die (self::echoSuccess($psMsgSuccess));
+	}
+	
+	
+	/**
+	 *
+	 * @param unknown $psMsgError
+	 */
+	public static function exitInfo ($psMsgInfo)
+	{
+		die (self::echoInfo($psMsgInfo));
+	}
+	
 	
 	/**
 	 *
@@ -58,13 +137,27 @@ class System
 	 */
 	public static function confirm ($psQuestion)
 	{
-		echo "\e[34m" . $psQuestion . " [Y/n]:\e[0m ";
+		echo "\n\e[36m" . $psQuestion . " [Y/n]:\e[0m ";
 	
 		$lrRandle = fopen("php://stdin", "r");
 		$lsAnswer = fgets($lrRandle);
 		fclose($lrRandle);
 	
-		return strtolower(trim($lsAnswer));
+		$lsAnswer = strtolower(trim($lsAnswer));
+		Debug::debug("[$lsAnswer]");
+		
+		switch ($lsAnswer)
+		{
+			case 'y':
+				return true;
+				break;
+			case 'n':
+				return false;
+				break;
+			default:
+				Debug::echoInfo("The answer need to be y (yes) or n (no)! Try again.");
+				return self::confirm($psQuestion);
+		}
 	}
 	
 	/**
