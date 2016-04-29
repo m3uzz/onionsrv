@@ -217,7 +217,7 @@ abstract class AbstractController
 	 * 
 	 * @param string $psVar
 	 * @param string $pmDefault
-	 * @param string $pbEmpty
+	 * @param bool $pbRequired
 	 * @return string
 	 */
 	public function getRequestArg ($psVar, $pmDefault = null, $pbRequired = false)
@@ -316,12 +316,12 @@ abstract class AbstractController
 	 * 
 	 * @param string $psVar
 	 * @param string $pmDefault
-	 * @param string $pbEmpty
+	 * @param bool $pbRequired
 	 * @return Ambigous <string, string>
 	 */
-	public function getRequest ($psVar, $pmDefault = null, $pbEmpty = true)
+	public function getRequest ($psVar, $pmDefault = null, $pbRequired = false)
 	{
-		return $this->getRequestArg($psVar, $this->getRequestGet($psVar, $this->getRequestPost($psVar, $pmDefault)), $pbEmpty);
+		return $this->getRequestArg($psVar, $this->getRequestGet($psVar, $this->getRequestPost($psVar, $pmDefault)), $pbRequired);
 	}
 
 	
