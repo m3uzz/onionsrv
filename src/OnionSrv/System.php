@@ -970,6 +970,10 @@ class System
 				{
 					$lsString .= $psIdentation . "'$lsKey' => " . ($lmValue ? 'true' : 'false') . ",\n";
 				}
+				elseif ($lmValue === null)
+				{
+					$lsString .= $psIdentation . "'$lsKey' => null,\n";
+				}
 				else 
 				{
 					if (preg_match("/\/\/array/", $lmValue))
