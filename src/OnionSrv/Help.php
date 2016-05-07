@@ -336,19 +336,19 @@ class Help
 		{
 			foreach ($this->_aModuleHelp as $lsModule => $laControllerHelp)
 			{
-				$this->set("\n\nModule: --m=" . $lsModule . "\n", self::BROWN, "", self::B);
+				$this->set("\n\nModule: -m=" . $lsModule . "\n", self::BROWN, "", self::B);
 				
 				if (is_array($laControllerHelp))
 				{
 					foreach ($laControllerHelp as $lsController => $laActionsHelp)
 					{
-						$this->set(" - Controller: --c=" . $lsController . "\n", self::BROWN);
+						$this->set(" - Controller: -c=" . $lsController . "\n", self::BROWN);
 						
 						if (is_array($laActionsHelp))
 						{
 							foreach ($laActionsHelp as $lsAction => $laAction)
 							{
-								$this->set("  - Action: --a=" . $lsAction, self::CYAN);
+								$this->set("  - Action: -a=" . $lsAction, self::CYAN);
 									
 								if (isset($laAction['desc']) && !empty($laAction['desc']))
 								{
