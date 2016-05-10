@@ -155,7 +155,7 @@ class System
 				return false;
 				break;
 			default:
-				Debug::echoInfo("The answer need to be y (yes) or n (no)! Try again.");
+				Self::echoInfo("The answer need to be y (yes) or n (no)! Try again.");
 				return self::confirm($psQuestion);
 		}
 	}
@@ -859,6 +859,29 @@ class System
 		return true;
 	}
 
+	
+	/**
+	 *
+	 * @param string $psFileNome path and file name to remove
+	 * @return boolean
+	 */
+	public static function removeSimblink ($psFileNome)
+	{
+		if (is_link($psFileNome))
+		{
+			if (!unlink($psFileNome))
+			{
+				throw new \Exception("Failed when tring to remove file $psFileNome from the system!");
+			}
+		}
+		else
+		{
+			Debug::debug($psFileNome . ' not found.');
+		}
+		
+		return true;
+	}
+	
 	
 	/**
 	 *

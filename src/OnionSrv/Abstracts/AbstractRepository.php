@@ -463,4 +463,39 @@ abstract class AbstractRepository
 		
 		return $lsSql;
 	}
+	
+	
+	/**
+	 *
+	 * @param string $psSql
+	 * @param array $paConfDb
+	 * @return boolean|array|null
+	 */
+	public function descTable ($psSql, array $paConfDb = null)
+	{
+		Debug::debug($psSql);
+	
+		if ($this->connect($paConfDb))
+		{
+			$loStantement = $this->_oDb->prepare($psSql);
+            $laResultSet = null;
+            
+			if ($loStantement->execute())
+			{
+			    $laResultSet = $loStantement->fetchAll();
+				Debug::debug("SQL execute OK");
+			}
+			else
+			{
+				$this->_aError = $loStantement->errorInfo();
+				Debug::debug($this->_aError);
+			}
+		
+			$this->_oDb = null;
+			
+			return $laResultSet;
+		}
+			
+		return false;
+	}	
 }

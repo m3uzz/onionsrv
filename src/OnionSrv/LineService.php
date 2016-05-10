@@ -88,13 +88,13 @@ class LineService
 				else
 				{
 					//Se o metodo não foi encontrado
-					Debug::exitError("Method not found!");
+					System::exitError("Method not found!");
 				}	
 			}
 			else
 			{
 				//Se a classe não foi encontrada
-				Debug::exitError("Class not found!");
+				System::exitError("Class not found!");
 			}
 		}
 		else
@@ -192,7 +192,7 @@ class LineService
 		else 
 		{
 			//Se o service não foi encontrado
-			Debug::exitError("Params not found!");
+			System::exitError("Params not found!");
 		}
 	}	
 }

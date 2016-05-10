@@ -280,9 +280,9 @@ abstract class AbstractController
 					}
 					else 
 					{
-						Debug::echoError("The param value is required to continue!");
-						Debug::echoError("Try --help!");
-						Debug::exitError("ABORTING SCRIPT EXECUTION!");
+						System::echoError("The param value is required to continue!");
+						System::echoError("Try --help!");
+						System::exitError("ABORTING SCRIPT EXECUTION!");
 					}
 				}
 				else
@@ -298,9 +298,9 @@ abstract class AbstractController
 					}
 					else
 					{
-						Debug::echoError("The param value do not match to the expected!");
-						Debug::echoError("Try --help!");
-						Debug::exitError("ABORTING SCRIPT EXECUTION!");
+						System::echoError("The param value do not match to the expected!");
+						System::echoError("Try --help!");
+						System::exitError("ABORTING SCRIPT EXECUTION!");
 					}
 				}
 			}
