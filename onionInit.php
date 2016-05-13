@@ -50,7 +50,6 @@ defined('BASE_DIR') 	|| define('BASE_DIR', realpath(dirname(dirname(dirname(__DI
 defined('CLIENT_DIR') 	|| define('CLIENT_DIR', BASE_DIR . DS . 'client');
 defined('VENDOR_DIR') 	|| define('VENDOR_DIR', BASE_DIR . DS . 'vendor');
 defined('CONFIG_DIR') 	|| define('CONFIG_DIR', CLIENT_DIR . DS . 'config');
-defined('MODULE_DIR') 	|| define('MODULE_DIR', CLIENT_DIR . DS . 'service');
 defined('DATA_DIR') 	|| define('DATA_DIR', CLIENT_DIR . DS . 'data');
 
 // Composer autoloading

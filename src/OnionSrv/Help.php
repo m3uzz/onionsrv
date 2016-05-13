@@ -102,9 +102,9 @@ class Help
 		$this->set("  $ ./onionsrv.php [-m=<ModuleName>] --help\n", self::GREEN, "", self::I);
 		
 		$this->setTopic("Route");
-		$this->setLine("-m=<ModuleName>", "Module name");
-		$this->setLine("-c=<ControllerName>", "Controller name");
-		$this->setLine("-a=<ActionName>", "Action name");
+		$this->setLine("-m, --module=<ModuleName>", "Module name");
+		$this->setLine("-c, --controller=<ControllerName>", "Controller name");
+		$this->setLine("-a, --action=<ActionName>", "Action name");
 		$this->setTopic("Options");
 		$this->setLine("-d, --debug", "Activate debug mod (check config/srv-config.php if debug is enable)");
 		$this->setLine("-e, --error", "Activate php display error");

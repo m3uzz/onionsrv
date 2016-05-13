@@ -129,17 +129,17 @@ class LineService
 				
 				switch ($laArg[0])
 				{
-					case '--mod':
+					case '--module':
 					case '--m':
 					case '-m':
 						$lsModule = $laArg[1];
 					break;
-					case '--ctr':
+					case '--controller':
 					case '--c':
 					case '-c':
 						$lsController = $laArg[1];
 					break;
-					case '--act':
+					case '--action':
 					case '--a':
 					case '-a':
 						$lsAction = $laArg[1];
@@ -153,6 +153,11 @@ class LineService
 				}				
 			}			
 			
+			if (empty($lsModule))
+			{
+				$lsModule = $lsAction;
+			}
+			
 			if (empty($lsController))
 			{
 				$lsController = $lsModule;
@@ -161,10 +166,15 @@ class LineService
 			if (empty($lsAction))
 			{
 				$lsAction = $lsController;
+			}			
+			
+			if (empty($lsModule) && empty($lsController) && empty($lsAction))
+			{
+			     $lsModule = $lsController = $lsAction = 'index';    
 			}
-				
+			
 			$lsPath = Autoload::getNamespace(ucfirst($lsModule), $goLoader);
-
+			
 			$lsService = $lsPath . DS . ucfirst($lsModule) . DS . 'Controller' . DS .  ucfirst($lsController) . "Controller.php";
 			$lsClass = '\\' . ucfirst($lsModule) . '\\' . 'Controller' . '\\' .  ucfirst($lsController) . "Controller";
 				

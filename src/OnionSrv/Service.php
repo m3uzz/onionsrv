@@ -193,11 +193,11 @@ class Service
 			}
 			
 			$laService['module'] = ucfirst($laPath[0]);
+			$lsPath = Autoload::getNamespace($laService['module'], $goLoader);
 			
 			switch ($lnCount)
 			{
 				case 1:
-					$lsPath = Autoload::getNamespace($laService['module'], $goLoader);
 					$lsService = $lsPath . DS . $laService['module'] . DS . 'Controller' . DS . $laService['module'] . "Controller.php";
 					$lsClass = '\\' . $laService['module'] . '\\Controller\\' . $laService['module'] . 'Controller';
 					
@@ -205,7 +205,6 @@ class Service
 					$laService['action'] = $laPath[0];
 				break;
 				case 2:
-					$lsPath = Autoload::getNamespace($laService['module'], $goLoader);
 					$lsService = $lsPath . DS . $laService['module'] . DS . 'Controller' . DS . $laService['module'] . "Controller.php";
 					$lsClass = '\\' . $laService['module'] . '\\Controller\\' . $laService['module'] . 'Controller';
 					
@@ -213,13 +212,12 @@ class Service
 					$laService['action'] = $laPath[1];
 					break;
 				default:
-					$lsPath = Autoload::getNamespace($laService['module'], $goLoader);
 					$lsService = $lsPath . DS . $laService['module'] . DS . 'Controller' . DS .  ucfirst($laPath[1]) . "Controller.php";
 					$lsClass = '\\' . $laService['module'] . '\\' . 'Controller' . '\\' .  ucfirst($laPath[1]) . "Controller";
 					
 					$laService['controller'] = ucfirst($laPath[1]);
 					$laService['action'] = $laPath[2];
-			}
+			}	
 			
 			if (TESTMOD)
 			{

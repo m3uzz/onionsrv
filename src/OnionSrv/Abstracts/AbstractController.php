@@ -103,7 +103,7 @@ abstract class AbstractController
 		
 		$this->_aParams = $paParams;
 		
-		$this->_aFilters = Config::getOptions('params');
+		$this->_aFilters = $this->getParamsFilters();
 		
 		Debug::debug($this->_aFilters);
 		
@@ -117,6 +117,21 @@ abstract class AbstractController
 		$this->help();
 	}
 
+
+	/**
+	 * 
+	 */
+	public function getParamsfilters()
+	{
+	    if (is_file($this->_sConfigPath . DS . 'srv-validate.php'))
+	    {
+	        return include($this->_sConfigPath . DS . 'srv-validate.php');
+	    }
+	    else 
+	    {
+	        return Config::getOptions('validate');
+	    }
+	}
 
 	/**
 	 * 
