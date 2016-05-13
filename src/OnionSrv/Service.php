@@ -75,7 +75,7 @@ class Service
 				if(is_object($loObj) && method_exists($loObj, $paService['method']))
 				{
 					//Executando o metodo
-					$loObj->$paService['method']($paParams);
+					$loObj->$paService['method']();
 				}
 				else
 				{
