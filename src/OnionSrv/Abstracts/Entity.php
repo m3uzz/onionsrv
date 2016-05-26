@@ -42,10 +42,29 @@
  * @link       http://github.com/m3uzz/onionsrv
  */
 namespace OnionSrv\Abstracts;
-use OnionSrv;
+use OnionSrv\Debug;
 
-abstract class Entity
+abstract class Entity extends MysqlPDO
 {
+    protected $_sTable;
+    
+    protected $_sClass;
+    
+    protected $_sPk;
+    
+    protected $_aFieldType = array();
+    
+    protected $_aChanged = array();
+    
+    protected $_sQueryInsert = null;
+    
+    protected $_sQueryUpdate = null;
+    
+    protected $_sQuerySelect = null;
+    
+    protected $_sQueryDelete = null;
+
+    
 	/**
 	 * 
 	 * @param string $psProperty
@@ -59,11 +78,12 @@ abstract class Entity
 				
 			if (method_exists($this, $lsMethod))
 			{
-				return $this->$lsMethod($pmValue);
+				$this->$lsMethod($pmValue);
 			}
 			else
 			{
 				$this->$psProperty = $pmValue;
+				$this->_aChanged[$psProperty] = true;
 			}
 		}
 	}
@@ -73,48 +93,50 @@ abstract class Entity
 	 * 
 	 * @param string $psVar
 	 * @param string $pmValue
-	 * @return \Lib\Abstracts\Entity
+	 * @return OnionSrv\Abstracts\Entity
 	 */
 	public function set ($psVar, $pmValue)
 	{
 		if (property_exists($this, $psVar))
 		{
 			$this->$psVar = $pmValue;
+			$this->_aChanged[$psVar] = true;
 		}
 		
 		return $this;
 	}
-	
-	
-	/**
-	 * 
-	 * @param string $psProperty
-	 */
-	public function __get ($psProperty)
-	{
-		return $this->get($psProperty);
-	}
-	
+
 	
 	/**
 	 * 
-	 * @param string $psProperty
+	 * @param array|object $pmData
+	 * @return OnionSrv\Abstracts\Entity
 	 */
-	public function get ($psProperty)
+	public function populate ($pmData)
 	{
-		if (property_exists($this, $psProperty))
-		{
-			$lsMethod = 'get' . ucfirst($psProperty);
-			
-			if (method_exists($this, $lsMethod))
-			{
-				return $this->$lsMethod();	
-			}
-			else
-			{
-				return $this->$psProperty;
-			}
-		}
+	    $laData = null;
+	    
+	    if (is_object($pmData))
+	    {
+	        $laData = $pmData->getArrayCopy();
+	    }
+	    elseif (is_array($pmData))
+	    {
+	        $laData = $pmData;
+	    }
+	    
+	    if (is_array($laData))
+	    {
+	        foreach ($laData as $lsField => $lmValue)
+	        {
+	            if (property_exists($this, $lsField))
+	            {
+	                $this->$lsField = $lmValue;
+	            }
+	        }
+	    }
+	    
+	    return $this;
 	}
 	
 	
@@ -124,11 +146,11 @@ abstract class Entity
 	 */
 	public function getArrayCopy ()
 	{
-		$laProperties = get_object_vars($this);
+		$laAllProperties = get_object_vars($this);
 		
-		if (is_array($laProperties))
+		if (is_array($laAllProperties))
 		{
-			foreach ($laProperties as $lsKey => $lmValue)
+			foreach ($laAllProperties as $lsKey => $lmValue)
 			{
 				if (substr($lsKey, 0, 1) !== '_')
 				{
@@ -185,5 +207,490 @@ abstract class Entity
 		}
 	
 		return $laReturn;
+	}
+	
+	
+	/**
+	 * 
+	 * @return OnionSrv\Abstracts\Entity
+	 */
+	public function getReflection ()
+	{
+	    $loRC = new \ReflectionClass($this);
+	    $lsDoc = $loRC->getDocComment();
+	    
+	    if (empty($this->_sClass))
+	    {
+            $this->_sClass = $loRC->getName();
+	    }
+	    
+        if (empty($this->_sTable) && preg_match('/\*[\s]*@table[\s]*=[\s]*(.*?)[\s]*\n/i', $lsDoc, $laTable))
+        {
+            $this->_sTable = $laTable[1];
+        }
+
+        $laEntity = $this->getArrayCopy();
+        	    
+		if (is_array($laEntity))
+	    {
+	        foreach ($laEntity as $lsField => $lmValue)
+	        {
+	            $loProperty = $loRC->getProperty($lsField);
+	            $lsDoc = $loProperty->getDocComment();
+	            
+	        	if (preg_match('/\*[\s]*@var[\s]*(.*?)[\s]*(PK)[\s]*\n/i', $lsDoc, $laResult))
+	            {
+	                if (empty($this->_sPk))
+	                {
+	                   $this->_sPk = $lsField;
+	                }
+	                
+	                $this->_aFieldType[$lsField] = $laResult[1];
+	            }
+	            elseif (preg_match('/\*[\s]*@var[\s]*(.*?)[\s]*\n/i', $lsDoc, $laResult))
+	            {
+	                $this->_aFieldType[$lsField] = $laResult[1];
+	            }
+	            elseif(preg_match('/^num.*$/', $lsField))
+	            {
+	                $this->_aFieldType[$lsField] = 'num';
+	            }
+	        	elseif (is_int($lmValue) || is_float($lmValue))
+	            {
+	        	    $this->_aFieldType[$lsField] = 'num';
+	            }
+	        }
+	    }
+	    
+	    return $this;
+	}
+	
+	
+    /**
+     * 
+     * @param boolean $pbIgnore
+     * @return boolean
+     */
+	public function insertQuery ($pbIgnore = false)
+	{
+	    $lsFields = '';
+	    $lsValues = '';
+	    $lsComma = '';
+	    $lsIgnore = '';
+	    
+	    if ($pbIgnore)
+	    {
+	        $lsIgnore = 'IGNORE';
+	    }
+	    
+	    $this->getReflection();
+	    
+	    $laEntity = $this->getArrayCopy();
+	    
+	    if (is_array($laEntity))
+	    {
+	        foreach ($laEntity as $lsField => $lmValue)
+	        {
+	            if ($this->_sPk != $lsField || !empty($lmValue))
+	            {
+	                switch ($this->_aFieldType[$lsField])
+        	        {
+        	            case 'num':
+        	            case 'int':
+        	            case 'decimal':
+        	            case 'float':
+        	               if (!empty($lmValue))
+        	               {
+        	                   $lsValues .= $lsComma . "{$lmValue}";
+        	               }
+        	               else 
+        	               {
+        	                   $lsValues .= $lsComma . "NULL";
+        	               }
+        	               break;
+        	            default:
+        	               $lsValues .= $lsComma . "'{$lmValue}'";
+        	        }
+        	            
+        	        $lsFields .= $lsComma . "`{$lsField}`";
+        	        $lsComma = ', ';
+	            }	            
+	        }
+	    }
+	    
+	    if (!empty($this->_sTable))
+	    {
+   	        $this->_sQueryInsert = "INSERT {$lsIgnore} 
+   	                                INTO `{$this->_sTable}` 
+   	                                    ({$lsFields}) 
+   	                                VALUES ({$lsValues})";
+   	        
+   	        return true;
+	    }
+	    
+	    $this->_aError[] = "1";
+	    $this->_aError[] = "There is no way to get the table name!";
+	    
+        return false;
+	}
+	
+	
+	/**
+	 * 
+	 * @param string $psWhere
+	 * @param number $pnLimit
+	 * @return boolean
+	 */
+	public function updateQuery ($psWhere = null, $pnLimit = 1)
+	{
+	    $lsPk = null;
+	    $lsWhere = null;
+	    $lsValues = '';
+	    $lsComma = '';
+
+	    $this->getReflection();
+	    
+	    $laEntity = $this->getArrayCopy();
+	    
+	    if (is_array($laEntity))
+	    {
+	        foreach ($laEntity as $lsField => $lmValue)
+	        {
+	            switch ($this->_aFieldType[$lsField])
+	            {
+	                case 'num':
+	                case 'int':
+	                case 'decimal':
+	                case 'float':
+	                   if (!empty($lmValue))
+        	           {
+        	               $lsFieldValue = "`{$lsField}` = {$lmValue}";
+        	           }
+        	           else 
+        	           {
+        	               $lsFieldValue = "`{$lsField}` = NULL";
+        	           }	                    
+	                   break;
+	                default:
+	                   $lsFieldValue = "`{$lsField}` = '{$lmValue}'";
+	            }
+
+	            if (isset($this->_aChanged[$lsField]))
+	            {
+	                $lsValues .= $lsComma . $lsFieldValue;
+	                $lsComma = ', ';
+	            }
+	            
+	            if ($this->_sPk == $lsField)
+	            {
+	                $lsPk = $lsFieldValue;
+	            }
+	        }
+	    }
+	    
+		if ($psWhere != null)
+	    {
+	        $lsWhere = $psWhere;
+	    }
+	    elseif ($lsPk != null)
+	    {
+            $lsWhere = $lsPk;
+	    }
+	    else 
+	    {
+    	    $this->_aError[] = "2";
+    	    $this->_aError[] = "There is no where clause!";
+    	    
+    	    return false;
+	    }
+
+        if (empty($lsValues))
+        {
+    	    $this->_aError[] = "0";
+    	    $this->_aError[] = "There is no values changed to update!";
+    	    
+    	    return true;
+        }
+        
+        if (!empty($this->_sTable))
+        {
+   	        $this->_sQueryUpdate = "UPDATE `{$this->_sTable}` 
+   	                                SET {$lsValues} 
+   	                                WHERE {$lsWhere} 
+   	                                LIMIT {$pnLimit}";
+   	        
+   	        return true;
+        }
+
+	    $this->_aError[] = "1";
+	    $this->_aError[] = "There is no way to get the table name!";
+        
+        return false;
+	}
+	
+	
+	/**
+	 * 
+	 * @param string $psWhere
+	 * @param number $pnLimit
+	 * @return boolean
+	 */
+	public function deleteQuery ($psWhere = null, $pnLimit = 1)
+	{
+		$lsPk = null;
+	    $lsWhere = null;
+	    
+	    $this->getReflection();
+
+	    if (isset($this->_aFieldType[$this->_sPk]))
+	    {
+            switch ($this->_aFieldType[$this->_sPk])
+            {
+                case 'num':
+                case 'int':
+                case 'decimal':
+                case 'float':
+                    $lsPk = "`{$this->_sPk}` = {$this->get($this->_sPk)}";
+                    break;
+                default:
+                    $lsPk = "`{$this->_sPk}` = '{$this->get($this->_sPk)}'";
+            }
+	    }
+	    
+		if ($psWhere != null)
+	    {
+	        $lsWhere = $psWhere;
+	    }
+	    elseif ($lsPk != null)
+	    {
+            $lsWhere = $lsPk;
+	    }
+		else 
+	    {
+    	    $this->_aError[] = "2";
+    	    $this->_aError[] = "There is no where clause!";
+    	    
+    	    return false;
+	    }	    
+
+        if (!empty($this->_sTable))
+        {
+    	    $this->_sQueryDelete = "DELETE FROM `{$this->_sTable}` 
+    	                            WHERE {$lsWhere} 
+    	                            LIMIT {$pnLimit}";
+    	    
+    	    return true;
+        }
+
+	    $this->_aError[] = "1";
+	    $this->_aError[] = "There is no way to get the table name!";
+	    
+        return false;	    
+	}
+	
+	
+	/**
+	 * 
+	 * @param mixed $pnId
+	 * return boolean
+	 */
+	public function find ($pnId)
+	{
+	    $lsWhere = null;
+	    $this->getReflection();
+	    
+		if (isset($this->_aFieldType[$this->_sPk]))
+	    {
+            switch ($this->_aFieldType[$this->_sPk])
+            {
+                case 'num':
+                case 'int':
+                case 'decimal':
+                case 'float':
+                    $lsWhere = "`{$this->_sPk}` = {$pnId}";
+                    break;
+                default:
+                    $lsWhere = "`{$this->_sPk}` = '{$pnId}'";
+            }
+	    }
+	    
+        return $this->findOneBy($lsWhere);    
+	}
+	
+	
+	/**
+	 * 
+	 * @param string $psWhere
+	 * return boolean
+	 */
+	public function findOneBy ($psWhere = null)
+	{
+	    $this->getReflection();
+   
+        if (!empty($this->_sTable))
+        {
+            if (!empty($psWhere))
+            {
+                $psWhere = "AND {$psWhere}";
+            }
+            
+   	        $this->selectQuery($this->_sTable, $psWhere, '*', '', 1);
+
+    		if ($this->connect())
+    		{
+    		    Debug::debug($this->_sQuerySelect);
+    		    
+    			$loStantement = $this->_oDb->prepare($this->_sQuerySelect);
+    			
+    			$this->_oDb = null;
+    			
+    			if ($loStantement->execute())
+    			{ 
+    				$laResultSet = $loStantement->fetchAll(\PDO::FETCH_ASSOC);
+   			        Debug::debug($laResultSet);
+   			        
+    				if (isset($laResultSet[0]))
+    				{
+    					$this->populate($laResultSet[0]);
+    					
+    					return true;
+    				}
+    				else 
+    				{
+    				    return false;
+    				}
+    			}
+    			else
+    			{
+    				$this->_aError = $loStantement->errorInfo();
+    				Debug::debug($this->_aError);
+    			}
+    		}
+        }
+
+	    $this->_aError[] = "1";
+	    $this->_aError[] = "There is no way to get the table name!";
+        
+        return false;	    
 	}	
+	
+	/**
+	 * 
+	 * @param string $psWhere
+	 * @param int $pnOffset        	
+	 * @param int $pnPage        	
+	 * @param mixed $pmOrdField        	
+	 * @param string $psOrder
+	 * @param mixed $pmGroup       	
+	 * @return array|array of object|bool
+	 */
+    public function findBy ($psWhere = null, $pnOffset = 0, $pnPage = 0, $pmOrdField = null, $psOrder = null, $pmGroup = null)
+	{
+	    $this->getReflection();
+       
+        if (!empty($this->_sTable))
+        {
+            if (!empty($psWhere))
+            {
+                $psWhere = "AND {$psWhere}";
+            }
+            
+   	        $this->selectQuery($this->_sTable, $psWhere, '*', '', $pnOffset, $pnPage, $pmOrdField, $psOrder, $pmGroup);
+   	        
+   	        return $this->queryExec($this->_sQuerySelect, $this->_sClass);
+        }
+        
+        $this->_aError[] = "1";
+	    $this->_aError[] = "There is no way to get the table name!";
+        
+        return false;
+	}	
+	
+	
+	/**
+	 * 
+	 * @return boolean
+	 */
+	public function flush ()
+	{
+	    if ($this->insertQuery(true))
+	    {
+		    Debug::debug($this->_sQueryInsert);
+	
+		    if ($this->connect())
+		    {
+			    $loStantement = $this->_oDb->prepare($this->_sQueryInsert);
+	
+			    $lbReturn = $loStantement->execute();
+			
+			    if ($lbReturn)
+			    {
+			        Debug::debug("SQL insert OK");
+			        
+			        $lnId = $this->_oDb->lastInsertId();
+                    $this->set($this->_sPk, $lnId);
+			    }
+			    else
+			    {
+				    $this->_aError = $loStantement->errorInfo();
+				    Debug::debug($this->_aError);
+			    }
+		    }
+		}
+
+		$this->_oDb = null;
+			
+		return $lbReturn;
+	}
+	
+	
+	/**
+	 * 
+	 * @return boolean
+	 */
+	public function update ()
+	{
+	    if ($this->updateQuery())
+	    {
+	        if ($this->execute($this->_sQueryUpdate))
+	        {
+	            $this->_aChanged = array();
+	            
+	            return true;
+	        }
+	    }
+	    
+	    return false;
+	}
+	
+	
+	/**
+	 * 
+	 * @return boolean
+	 */
+	public function delete ()
+	{
+	    if ($this->deleteQuery())
+	    {
+	        if ($this->execute($this->_sQueryDelete))
+	        {
+	            $this->ResetObject();
+	            return true;
+	        }
+	    }
+	    
+	    return false;
+	}
+	
+	
+	/**
+	 * 
+	 */
+    public function ResetObject()
+    {
+        foreach ($this as $lsKey => $lmValue)
+        {
+            unset($this->$lsKey);
+        }
+    }	
 }

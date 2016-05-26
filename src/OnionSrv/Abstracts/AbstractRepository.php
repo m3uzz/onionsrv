@@ -45,250 +45,59 @@
 namespace OnionSrv\Abstracts;
 use OnionSrv\Debug;
 
-abstract class AbstractRepository
+abstract class AbstractRepository extends MysqlPDO
 {
-
-	protected $_aConfDb = array();
-
-	protected $_oDb = null;
-	
-	protected $_aError = null;
+	protected $_sEntity = null;
 
 	
 	/**
 	 * 
-	 * @param array $paDb
-	 */
-	public function __construct (array $paDb)
-	{
-		$this->setDbConf($paDb);
-	}
-
-	
-	/**
-	 *
-	 * @return bool
-	 */
-	public function hasError ()
-	{
-		if ($this->_aError != null);
-		{
-			return true;
-		}
-		
-		return false;
-	}
-	
-	
-	/**
-	 * 
-	 * @return string|null
-	 */
-	public function getErrorMsg ()
-	{
-		if (isset($this->_aError[2]))
-		{
-			return $this->_aError[2];
-		}
-		
-		return null;
-	}
-	
-	
-	/**
-	 *
-	 * @return string|null
-	 */
-	public function getErrorCode ()
-	{
-		if (isset($this->_aError[1]))
-		{
-			return $this->_aError[1];
-		}
-	
-		return null;
-	}
-	
-	
-	/**
-	 *
-	 * @return string|null
-	 */
-	public function getError ()
-	{
-		if (is_array($this->_aError))
-		{
-			return $this->_aError;
-		}
-	
-		return null;
-	}
-	
-	
-	/**
-	 * 
-	 * @param array $paDb
-	 * @return \Lib\Abstracts\AbstractRepository
-	 */
-	public function setDbConf (array $paDb)
-	{
-		if (is_array($paDb))
-		{
-			$this->_aConfDb['host'] = (isset($paDb['host']) ? $paDb['host'] : null);
-			$this->_aConfDb['user'] = (isset($paDb['user']) ? $paDb['user'] : null);
-			$this->_aConfDb['pass'] = (isset($paDb['pass']) ? $paDb['pass'] : null);
-			$this->_aConfDb['db'] = (isset($paDb['db']) ? $paDb['db'] : null);
-			$this->_aConfDb['port'] = (isset($paDb['port']) ? $paDb['port'] : null);
-		}
-		
-		Debug::debug($this->_aConfDb);
-		
-		return $this;
-	}
-
-	
-	/**
-	 * 
+	 * @param string $psClass
 	 * @param array $paConfDb
-	 * @return bool
+	 * @return object Entity
 	 */
-	public function connect (array $paConfDb = null)
+	public function getEntity($psEntity, $paConfDb = null)
 	{
-		if ($paConfDb == null)
-		{
-			$paConfDb = $this->_aConfDb;
-		}
-		
-		$lsCon = "mysql:host={$paConfDb['host']};port={$paConfDb['port']};dbname={$paConfDb['db']}";
-		$lsUser = $paConfDb['user'];
-		$lsPass = $paConfDb['pass'];
-		
-		Debug::debug(array($lsCon, $lsUser, $lsPass));
-		
-		try {
-			$this->_oDb = new \PDO($lsCon, $lsUser, $lsPass);
-			Debug::debug($this->_oDb);
-			
-			return true;
-		}
-		catch (\PDOException $e) {
-			$this->_aError[1] = $e->getCode();
-			$this->_aError[2] = $e->getMessage();
-			Debug::debug($this->_aError);
-			
-			return false;
-		}
+	   if ($paConfDb == null)
+	   {
+	       $paConfDb = $this->_aConfDb;
+	   }
+	   
+	   $loEntity = new $psEntity($paConfDb);
+	   
+	   return $loEntity;
 	}
-
+	
+	
+	/**
+	 * 
+	 * @param object $poEntity
+	 * @return object Entity
+	 */
+	public function persiste ($poEntity)
+	{
+	    $poEntity->setDbConf($this->_aConfDb);
+	    
+	    return $poEntity;
+	}
+	
 	
 	/**
 	 *
-	 * @param string $psString        	
+	 * @param string $psTable        	
+	 * @param string $psWhere        	
+	 * @param mixed $pmFields 
+	 * @param string $psJoin       	
+	 * @param int $pnOffset        	
+	 * @param int $pnPage        	
+	 * @param mixed $pmOrdField        	
+	 * @param string $psOrder
+	 * @param mixed $pmGroup       	
 	 * @return string
 	 */
-	public function escapeString ($psString)
+	public function select ($psTable, $psWhere = null, $pmFields = '*', $psJoin = '', $pnOffset = 0, $pnPage = 0, $pmOrdField = null, $psOrder = null, $pmGroup = null)
 	{
-		$laSearch = array(
-			"\\",
-			"\0",
-			"\n",
-			"\r",
-			"\x1a",
-			"'",
-			'"'
-		);
-		
-		$laReplace = array(
-			"\\\\",
-			"\\0",
-			"\\n",
-			"\\r",
-			"\Z",
-			"\'",
-			'\"'
-		);
-		
-		return str_replace($laSearch, $laReplace, $psString);
-	}
-
-	
-	/**
-	 *
-	 * @param string $psSql        	
-	 * @param string $psEntity        	
-	 * @return array|array of object|bool
-	 */
-	public function queryExec ($psSql, $psEntity = "", array $paConfDb = null)
-	{
-		Debug::debug($psSql);
-		
-		if ($this->connect($paConfDb))
-		{
-			$loStantement = $this->_oDb->prepare($psSql);
-			
-			$this->_oDb = null;
-			
-			if ($loStantement->execute())
-			{ 
-				if (!empty($psEntity))
-				{
-					$laResultSet = $loStantement->fetchAll(\PDO::FETCH_CLASS, $psEntity);
-				}
-				else 
-				{
-					$laResultSet = $loStantement->fetchAll();
-				}
-				
-				Debug::debug($laResultSet);
-			
-				if (is_array($laResultSet) && count($laResultSet) > 0)
-				{
-					return $laResultSet;
-				}
-			}
-			else
-			{
-				$this->_aError = $loStantement->errorInfo();
-				Debug::debug($this->_aError);
-			}
-		}
-				
-		return false;
-	}
-
-	
-	/**
-	 *
-	 * @param string $psSql
-	 * @param array $paConfDb
-	 * @return boolean
-	 */
-	public function execute ($psSql, array $paConfDb = null)
-	{
-		Debug::debug($psSql);
-	
-		if ($this->connect($paConfDb))
-		{
-			$loStantement = $this->_oDb->prepare($psSql);
-	
-			$lbReturn = $loStantement->execute();
-			
-			if ($lbReturn)
-			{
-				Debug::debug("SQL execute OK");
-			}
-			else
-			{
-				$this->_aError = $loStantement->errorInfo();
-				Debug::debug($this->_aError);
-			}
-		
-			$this->_oDb = null;
-			
-			return $lbReturn;
-		}
-			
-		return false;
+	    return $this->selectQuery($psTable, $psWhere, $pmFields, $psJoin, $pnOffset, $pnPage, $pmOrdField, $psOrder, $pmGroup);
 	}
 	
 	
@@ -314,7 +123,7 @@ abstract class AbstractRepository
 	{
 		return $this->execute($psSql, $paConfDb);
 	}
-		
+
 	
 	/**
 	 *
@@ -325,143 +134,6 @@ abstract class AbstractRepository
 	public function create ($psSql, array $paConfDb = null)
 	{
 		return $this->execute($psSql, $paConfDb);
-	}
-	
-	
-	/**
-	 *
-	 * @param string $psTable        	
-	 * @param string $psWhere        	
-	 * @param mixed $pmFields 
-	 * @param string $psJoin       	
-	 * @param int $pnOffset        	
-	 * @param int $pnPage        	
-	 * @param mixed $pmOrdField        	
-	 * @param string $psOrder
-	 * @param mixed $pmGroup       	
-	 * @return string
-	 */
-	public function select ($psTable, $psWhere = null, $pmFields = '*', $psJoin = '', $pnOffset = 0, $pnPage = 0, $pmOrdField = null, $psOrder = null, $pmGroup = null)
-	{
-		$pnOffset = $this->escapeString($pnOffset);
-		$pnPage = $this->escapeString($pnPage);
-		$psOrder = strtoupper($this->escapeString($psOrder));
-		
-		$lsFields = '';
-		$lsGroup = '';
-		$lsOrder = '';
-		$lsLimit = '';
-
-		
-		if (is_array($pmOrdField))
-		{
-			$lsComma = "";
-		
-			foreach ($pmOrdField as $lsField => $lsOrd)
-			{
-				if ($lsOrd != "ASC" && $lsOrd != "DESC" && $lsOrd != "RAND")
-				{
-					$lsOrd = 'ASC';
-				}
-				elseif ($lsOrd == "RAND")
-				{
-					$lsOrd = 'rand()';
-				}
-				
-				$lsField = $this->escapeString($lsField);
-				
-				$lsOrder .= "{$lsComma}{$lsField} {$lsOrd}";
-				$lsComma = ", ";
-			}
-				
-			if (!empty($lsOrder))
-			{
-				$lsOrder = "ORDER BY {$lsOrder}";
-			}
-		}
-		elseif (is_string($pmOrdField) && !empty($pmOrdField))
-		{
-			if ($psOrder != "ASC" && $psOrder != "DESC" && $psOrder != "RAND")
-			{
-				$psOrder = 'ASC';
-			}
-			elseif ($psOrder == "RAND")
-			{
-				$psOrder = 'rand()';
-			}
-			
-			$pmOrdField = $this->escapeString($pmOrdField);
-			
-			$lsOrder = "ORDER BY {$pmOrdField} {$psOrder}";
-		}
-		
-		if ($pnOffset > 0)
-		{
-			if ($pnPage > 0)
-			{
-				$lsLimit = "LIMIT {$pnPage}, {$pnOffset}";
-			}
-			else
-			{
-				$lsLimit = "LIMIT {$pnOffset}";
-			}
-		}
-		
-		if (is_array($pmGroup))
-		{
-			$lsComma = "";
-				
-			foreach ($pmGroup as $lsField)
-			{
-				$lsGroup .= "{$lsComma}{$lsField}";
-				$lsComma = ", ";
-			}
-			
-			if (!empty($lsGroup))
-			{
-				$lsGroup = "GROUP BY {$lsGroup}";
-			}
-		}
-		elseif(is_string($pmGroup) && !empty($pmGroup))
-		{
-			$lsGroup .= "GROUP BY $pmGroup";
-		}
-		
-		if (is_array($pmFields))
-		{
-			$lsComma = "";
-			
-			foreach ($pmFields as $lsAlias => $lsField)
-			{
-				if (is_string($lsAlias))
-				{
-					$lsFields .= "{$lsComma}{$lsField} AS {$lsAlias}";
-				}
-				else
-				{
-					$lsFields .= "{$lsComma}{$lsField}";
-				}
-				
-				$lsComma = ", ";
-			}
-		}
-		else
-		{
-			$lsFields = '*';
-		}
-		
-		$lsSql = "
-		SELECT {$lsFields}
-		FROM {$psTable}
-		{$psJoin}
-		WHERE 1 {$psWhere}
-		{$lsGroup}
-		{$lsOrder}
-		{$lsLimit}";
-		
-		$lsSql = preg_replace(("/WHERE 1 AND /i"), "WHERE ", $lsSql);
-		
-		return $lsSql;
 	}
 	
 	
@@ -497,5 +169,61 @@ abstract class AbstractRepository
 		}
 			
 		return false;
+	}
+	
+	
+	/**
+	 * 
+	 * @param string $psEntity
+	 * @param string|int $pmId
+	 */
+	public function find ($psEntity, $pmId)
+	{
+	    $loEntity = $this->getEntity($psEntity);
+	    
+	    if ($loEntity->find($pmId))
+	    {
+	       return $loEntity;
+	    }
+	    
+	    return null;
+	}
+	
+	
+	/**
+	 * 
+	 * @param string $psEntity
+	 * @param string $psWhere
+	 */
+	public function findOneBy ($psEntity, $psWhere)
+	{
+	    $loEntity = $this->getEntity($psEntity);
+	    
+	    if ($loEntity->findOneBy($psWhere))
+	    {
+	       return $loEntity;
+	    }
+	    
+	    return null;
+	}
+	
+	
+	/**
+	 * 
+	 * @param string $psEntity
+	 * @param string $psWhere
+	 * @param int $pnOffset        	
+	 * @param int $pnPage        	
+	 * @param mixed $pmOrdField        	
+	 * @param string $psOrder
+	 * @param mixed $pmGroup       	
+	 * @return string
+	 */
+	public function findBy ($psEntity, $psWhere = null, $pnOffset = 0, $pnPage = 0, $pmOrdField = null, $psOrder = null, $pmGroup = null)
+	{
+	    $loEntity = $this->getEntity($psEntity);
+   
+	    return $loEntity->findBy($psWhere, $pnOffset, $pnPage, $pmOrdField, $psOrder, $pmGroup);
 	}	
+	
 }
