@@ -74,7 +74,7 @@ abstract class AbstractRepository extends MysqlPDO
 	 * @param object $poEntity
 	 * @return object Entity
 	 */
-	public function persiste ($poEntity)
+	public function persist ($poEntity)
 	{
 	    $poEntity->setDbConf($this->_aConfDb);
 	    
