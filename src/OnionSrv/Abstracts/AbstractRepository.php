@@ -45,25 +45,103 @@
 namespace OnionSrv\Abstracts;
 use OnionSrv\Debug;
 
-abstract class AbstractRepository extends MysqlPDO
+abstract class AbstractRepository
 {
-	protected $_sEntity = null;
-
+	protected $_sEntity = 'OnionSrv\Abstracts\Entity';
+	
+	protected $_oConnection = null;
+	
+	
+	/**
+	 * 
+	 * @param array $paConf
+	 */
+	public function __construct (array $paConf = array())
+	{
+		$this->setDbConf($paConf);
+	}
+	
+	
+	/**
+	 * 
+	 * @param array $paConf
+	 * @return object
+	 */
+	public function setDbConf (array $paConf)
+	{
+		if (is_array($paConf) && count($paConf) > 0)
+		{
+		    $lsDriverName = (isset($paConf['driver']) ? $paConf['driver'] : 'PDOMySql');
+		    
+		    if ($lsDriverName != null && class_exists("\\OnionSrv\\Driver\\{$lsDriverName}", true))
+		    {
+		        $lsDriver = "\\OnionSrv\\Driver\\{$lsDriverName}";
+		        $this->_oConnection = new $lsDriver($paConf);
+		    }
+		    else 
+		    {
+		        throw new \Exception("Database driver '{$lsDriverName}' do not exists");
+		    }
+		}
+		
+		return $this;
+	}
+	
+	
+	/**
+	 *
+	 * @return bool
+	 */
+	public function hasError ()
+	{
+		return $this->_oConnection->hasError();
+	}
+	
+	
+	/**
+	 * 
+	 * @return string|null
+	 */
+	public function getErrorMsg ()
+	{
+		return $this->_oConnection->getErrorMsg();
+	}
+	
+	
+	/**
+	 *
+	 * @return string|null
+	 */
+	public function getErrorCode ()
+	{
+		return $this->_oConnection->getErrorCode();
+	}
+	
+	
+	/**
+	 *
+	 * @return string|null
+	 */
+	public function getError ()
+	{
+		return $this->_oConnection->getError();
+	}
+	
 	
 	/**
 	 * 
 	 * @param string $psClass
-	 * @param array $paConfDb
+	 * @param array $paConf
 	 * @return object Entity
 	 */
-	public function getEntity($psEntity, $paConfDb = null)
+	public function getEntity($psEntity, $paConf = null)
 	{
-	   if ($paConfDb == null)
+	   if ($paConf == null)
 	   {
-	       $paConfDb = $this->_aConfDb;
+	       $paConf = $this->_oConnection->get('_aConf');
 	   }
 	   
-	   $loEntity = new $psEntity($paConfDb);
+	   $loEntity = new $psEntity($paConf);
 	   
 	   return $loEntity;
 	}
@@ -76,7 +154,7 @@ abstract class AbstractRepository extends MysqlPDO
 	 */
 	public function persist ($poEntity)
 	{
-	    $poEntity->setDbConf($this->_aConfDb);
+	    $poEntity->setDbConf($this->_oConnection->get('_aConf'));
 	    
 	    return $poEntity;
 	}
@@ -84,7 +162,18 @@ abstract class AbstractRepository extends MysqlPDO
 	
 	/**
 	 *
-	 * @param string $psTable        	
+	 * @param string $psString        	
+	 * @return string
+	 */
+	public function escapeString ($psString)
+	{
+	    return $this->_oConnection->escapeString ($psString);
+	}
+	
+	
+	/**
+	 *
+	 * @param string $psEntity        	
 	 * @param string $psWhere        	
 	 * @param mixed $pmFields 
 	 * @param string $psJoin       	
@@ -95,82 +184,85 @@ abstract class AbstractRepository extends MysqlPDO
 	 * @param mixed $pmGroup       	
 	 * @return string
 	 */
-	public function select ($psTable, $psWhere = null, $pmFields = '*', $psJoin = '', $pnOffset = 0, $pnPage = 0, $pmOrdField = null, $psOrder = null, $pmGroup = null)
+	public function select ($psEntity, $psWhere = null, $pmFields = '*', $psJoin = '', $pnOffset = 0, $pnPage = 0, $pmOrdField = null, $psOrder = null, $pmGroup = null)
 	{
-	    return $this->selectQuery($psTable, $psWhere, $pmFields, $psJoin, $pnOffset, $pnPage, $pmOrdField, $psOrder, $pmGroup);
-	}
-	
-	
-	/**
-	 * 
-	 * @param string $psSql
-	 * @param array $paConfDb
-	 * @return boolean
-	 */
-	public function update ($psSql, array $paConfDb = null)
-	{
-		return $this->execute($psSql, $paConfDb);
-	}
-
-	
-	/**
-	 * 
-	 * @param string $psSql
-	 * @param array $paConfDb
-	 * @return boolean
-	 */
-	public function insert ($psSql, array $paConfDb = null)
-	{
-		return $this->execute($psSql, $paConfDb);
-	}
-
-	
-	/**
-	 *
-	 * @param string $psSql
-	 * @param array $paConfDb
-	 * @return boolean
-	 */
-	public function create ($psSql, array $paConfDb = null)
-	{
-		return $this->execute($psSql, $paConfDb);
+	    return $this->_oConnection->createQuerySelect($psEntity, $psWhere, $pmFields, $psJoin, $pnOffset, $pnPage, $pmOrdField, $psOrder, $pmGroup);
 	}
 	
 	
 	/**
 	 *
-	 * @param string $psSql
-	 * @param array $paConfDb
+	 * @param string $psQuery        	
+	 * @param string $psEntity        	
+	 * @return array|array of object|bool
+	 */
+	public function queryExec ($psQuery, $psEntity = "", array $paConf = null)
+	{
+	    $this->_oConnection->setQuery($psQuery);
+	    
+		return $this->_oConnection->queryExec($psEntity, $paConf);
+	}
+	
+	
+	/**
+	 * 
+	 * @param string $psQuery
+	 * @param array $paConf
+	 * @return boolean
+	 */
+	public function execute ($psQuery, array $paConf = null)
+	{
+		return $this->queryExec($psQuery, '', $paConf);
+	}
+	
+	
+	/**
+	 * 
+	 * @param string $psQuery
+	 * @param array $paConf
+	 * @return boolean
+	 */
+	public function update ($psQuery, array $paConf = null)
+	{
+		return $this->execute($psQuery, $paConf);
+	}
+
+	
+	/**
+	 * 
+	 * @param string $psQuery
+	 * @param array $paConf
+	 * @return boolean
+	 */
+	public function insert ($psQuery, array $paConf = null)
+	{
+		return $this->execute($psQuery, $paConf);
+	}
+
+	
+	/**
+	 *
+	 * @param string $psQuery
+	 * @param array $paConf
+	 * @return boolean
+	 */
+	public function create ($psQuery, array $paConf = null)
+	{
+		return $this->execute($psQuery, $paConf);
+	}
+	
+	
+	/**
+	 *
+	 * @param string $psEntity
+	 * @param array $paConf
 	 * @return boolean|array|null
 	 */
-	public function descTable ($psSql, array $paConfDb = null)
+	public function descEntity ($psEntity, array $paConf = null)
 	{
-		Debug::debug($psSql);
-	
-		if ($this->connect($paConfDb))
-		{
-			$loStantement = $this->_oDb->prepare($psSql);
-            $laResultSet = null;
-            
-			if ($loStantement->execute())
-			{
-			    $laResultSet = $loStantement->fetchAll();
-				Debug::debug("SQL execute OK");
-			}
-			else
-			{
-				$this->_aError = $loStantement->errorInfo();
-				Debug::debug($this->_aError);
-			}
-		
-			$this->_oDb = null;
-			
-			return $laResultSet;
-		}
-			
-		return false;
-	}
-	
+        return $this->_oConnection->descEntity ($psEntity, $paConf);	    
+	} 
+
 	
 	/**
 	 * 
