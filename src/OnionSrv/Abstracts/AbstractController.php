@@ -75,6 +75,12 @@ abstract class AbstractController
 	
 	protected $_sAction;
 	
+	protected $_oView;
+	
+	protected $_sLayoutTemplate;
+	
+	protected $_sViewTemplate;
+	
 	public $_bHelp = false;
 
 	
@@ -391,5 +397,56 @@ abstract class AbstractController
 		}
 		
 		return false;
+	}
+	
+	
+	public function setLayoutTemplate ($psTemplate = null)
+	{
+	    //TODO: criar template para layout
+	}
+	
+	
+	public function setViewTemplate ($psTemplate = null)
+	{
+	    //TODO: criar template para view
+	}
+	
+	
+	public function setView ()
+	{
+	    //TODO: criar classe view
+	}
+	
+	
+    /**
+     * 
+     * @param mixed $pmView
+     */
+	public function httpView ($pmView)
+	{
+	    if ($_SERVER['HTTP_ACCEPT'] == 'application/json')
+	    {
+	        header('Content-type: application/json');
+	        echo json_encode($pmView);
+	    }
+	    else 
+	    {
+	       Debug::display($pmView);
+	    }
+	}
+	
+	
+    /**
+     * 
+     * @param mixed $pmView
+     */
+	public function lineView ($pmView)
+	{
+		if (!DEBUG)
+		{
+			header('Content-type: application/json');
+		}
+		
+		echo json_encode($pmView);
 	}
 }

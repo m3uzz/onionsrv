@@ -130,28 +130,22 @@ use OnionSrv\Config;
 Config::setDebugMod($gbDebug, $gbPhpError, $gbTime, $gbTest, $gbPrompt);
 Config::setTimeZone();
 
-use OnionSrv\Autoload;
-Autoload::autoload($goLoader);
+OnionSrv\Autoload::autoload($goLoader);
 
-use OnionSrv\Access;
-use OnionSrv\Service;
-use OnionSrv\LineService;
-use OnionSrv\System;
 use OnionSrv\Debug;
-use OnionSrv\Event;
 
 Debug::debugTimeStart("init");
 
 if (PHP_SAPI == "cli")
 {
-	$goService = new LineService();
+	$goService = new OnionSrv\LineService();
 	$goService->serviceRoute();
 }
 else
 {
-	if (Access::hasAccess())
+	if (OnionSrv\Access::hasAccess())
 	{
-		$goService = new Service();
+		$goService = new OnionSrv\HttpService();
 		$goService->serviceRoute();
 	}
 	else

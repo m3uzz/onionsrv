@@ -47,7 +47,7 @@ use OnionSrv\Debug;
 use OnionSrv\System;
 use OnionSrv\Autoload;
 
-class Service
+class HttpService
 {
 	/**
 	 * 
@@ -75,7 +75,12 @@ class Service
 				if(is_object($loObj) && method_exists($loObj, $paService['method']))
 				{
 					//Executando o metodo
-					$loObj->$paService['method']();
+					$lmView = $loObj->$paService['method']();
+					
+					if (method_exists($loObj, 'httpView'))
+					{
+					    $loObj->httpView($lmView);
+					}
 				}
 				else
 				{

@@ -138,7 +138,9 @@ class PDOMySql extends AbstractDriver
 	 */
 	public function execute ($psQuery = null, array $paConf = null)
 	{
-	    return $this->queryExec($psQuery, '', $paConf);
+	    $this->setQuery($psQuery);
+	    
+	    return $this->queryExec('', $paConf);
 	}	
 	
 	
@@ -152,28 +154,24 @@ class PDOMySql extends AbstractDriver
 	{
 		$lsQuery = "DESC {$psEntity}";
 		
-		return $this->queryExec($lsQuery, "", $paConf);
+		$this->setQuery($lsQuery);
+		
+		return $this->queryExec("", $paConf);
 	}
 	
 	
 	/**
 	 *
-	 * @param string $psQuery        	
 	 * @param string $psEntity        	
 	 * @return array|array of object|bool
 	 */
-	public function queryExec ($psQuery = null, $psEntity = "", array $paConf = null)
+	public function queryExec ($psEntity = "", array $paConf = null)
 	{
-		if ($psQuery == null)
-	    {
-	        $psQuery = $this->_sQuery;
-	    }
-	    
-		Debug::debug("QUERY: " . $psQuery);
+    	Debug::debug("QUERY: " . $this->_sQuery);
 		
 		if ($this->connect($paConf))
 		{
-			$loStantement = $this->_oCon->prepare($psQuery);
+			$loStantement = $this->_oCon->prepare($this->_sQuery);
 			
 			$this->close();
 			
@@ -250,7 +248,7 @@ class PDOMySql extends AbstractDriver
 				
 				$lsField = $this->escapeString($lsField);
 				
-				$lsOrder .= "{$lsComma}`{$lsField}` {$lsOrd}";
+				$lsOrder .= "{$lsComma}{$lsField} {$lsOrd}";
 				$lsComma = ", ";
 			}
 				
@@ -293,7 +291,7 @@ class PDOMySql extends AbstractDriver
 				
 			foreach ($pmGroup as $lsField)
 			{
-				$lsGroup .= "{$lsComma}`{$lsField}`'";
+				$lsGroup .= "{$lsComma}{$lsField}'";
 				$lsComma = ", ";
 			}
 			
@@ -315,11 +313,11 @@ class PDOMySql extends AbstractDriver
 			{
 				if (is_string($lsAlias))
 				{
-					$lsFields .= "{$lsComma}`{$lsField}` AS {$lsAlias}";
+					$lsFields .= "{$lsComma}{$lsField} AS {$lsAlias}";
 				}
 				else
 				{
-					$lsFields .= "{$lsComma}`{$lsField}`";
+					$lsFields .= "{$lsComma}{$lsField}";
 				}
 				
 				$lsComma = ", ";
@@ -330,9 +328,14 @@ class PDOMySql extends AbstractDriver
 			$lsFields = '*';
 		}
 		
+		if (!empty($psWhere) && !preg_match("/^AND /i", $psWhere))
+		{
+		    $psWhere = "AND {$psWhere}";
+		}
+		
    		$lsSql = "
     		SELECT {$lsFields}
-    		FROM `{$psEntity}`
+    		FROM {$psEntity}
     		{$psJoin}
     		WHERE 1 {$psWhere}
     		{$lsGroup}
@@ -652,11 +655,6 @@ class PDOMySql extends AbstractDriver
    
         if (!empty($poEntity->get('_sEntity')))
         {
-            if (!empty($psWhere))
-            {
-                $psWhere = "AND {$psWhere}";
-            }
-            
    	        $this->createQuerySelect($poEntity->get('_sEntity'), $psWhere, '*', '', 1);
 
     		if ($this->connect())
@@ -711,14 +709,9 @@ class PDOMySql extends AbstractDriver
        
         if (!empty($poEntity->get('_sEntity')))
         {
-            if (!empty($psWhere))
-            {
-                $psWhere = "AND {$psWhere}";
-            }
-
    	        $this->createQuerySelect($poEntity->get('_sEntity'), $psWhere, '*', '', $pnOffset, $pnPage, $pmOrdField, $psOrder, $pmGroup);
    	        
-   	        return $this->queryExec('', $poEntity->get('_sClass'));
+   	        return $this->queryExec($poEntity->get('_sClass'));
         }
 
         $this->setError(array("1", "There is no way to get the table name!"));
