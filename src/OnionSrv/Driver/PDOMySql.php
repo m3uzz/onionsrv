@@ -403,10 +403,12 @@ class PDOMySql extends AbstractDriver
 	        }
 	    }
 	    
-	    if (!empty($poEntity->get('_sEntity')))
+	    $lsEntity = $poEntity->get('_sEntity');
+	    
+	    if (!empty($lsEntity))
 	    {
    	        $this->_sQuery = "INSERT {$lsIgnore} 
-   	                          INTO `{$poEntity->get('_sEntity')}` 
+   	                          INTO `{$lsEntity}` 
    	                                ({$lsFields}) 
    	                          VALUES ({$lsValues})";
    	        
@@ -499,9 +501,11 @@ class PDOMySql extends AbstractDriver
     	    return true;
         }
         
-        if (!empty($poEntity->get('_sEntity')))
-        {
-   	        $this->_sQuery = "UPDATE `{$poEntity->get('_sEntity')}` 
+	    $lsEntity = $poEntity->get('_sEntity');
+	    
+	    if (!empty($lsEntity))
+	    {
+   	        $this->_sQuery = "UPDATE `{$lsEntity}` 
    	                          SET {$lsValues} 
    	                          WHERE {$lsWhere} 
    	                          LIMIT {$pnLimit}";
@@ -561,9 +565,11 @@ class PDOMySql extends AbstractDriver
     	    return false;
 	    }	    
 
-        if (!empty($poEntity->get('_sEntity')))
+	    $lsEntity = $poEntity->get('_sEntity');
+	    
+	    if (!empty($lsEntity))
         {
-    	    $this->_sQuery = "DELETE FROM `{$poEntity->get('_sEntity')}` 
+    	    $this->_sQuery = "DELETE FROM `{$lsEntity}` 
     	                      WHERE {$lsWhere} 
     	                      LIMIT {$pnLimit}";
     	    
@@ -653,9 +659,11 @@ class PDOMySql extends AbstractDriver
 	{
 	    $poEntity->getReflection();
    
-        if (!empty($poEntity->get('_sEntity')))
+	    $lsEntity = $poEntity->get('_sEntity');
+	    
+	    if (!empty($lsEntity))
         {
-   	        $this->createQuerySelect($poEntity->get('_sEntity'), $psWhere, '*', '', 1);
+   	        $this->createQuerySelect($lsEntity, $psWhere, '*', '', 1);
 
     		if ($this->connect())
     		{
@@ -707,9 +715,11 @@ class PDOMySql extends AbstractDriver
 	{
 	    $poEntity->getReflection();
        
-        if (!empty($poEntity->get('_sEntity')))
+	    $lsEntity = $poEntity->get('_sEntity');
+	    
+	    if (!empty($lsEntity))
         {
-   	        $this->createQuerySelect($poEntity->get('_sEntity'), $psWhere, '*', '', $pnOffset, $pnPage, $pmOrdField, $psOrder, $pmGroup);
+   	        $this->createQuerySelect($lsEntity, $psWhere, '*', '', $pnOffset, $pnPage, $pmOrdField, $psOrder, $pmGroup);
    	        
    	        return $this->queryExec($poEntity->get('_sClass'));
         }
