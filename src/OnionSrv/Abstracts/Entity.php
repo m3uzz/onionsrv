@@ -421,13 +421,46 @@ abstract class Entity
 	
 	/**
 	 * 
+	 * @param boolean $pbIgnore
+	 * @return boolean
+	 */
+	public function flushUpdate ()
+	{
+	    if ($this->_oConnection->update($this))
+	    {
+	        $this->_aChanged = array();
+            return true;
+	    }
+	    
+	    return false;
+	}
+	
+	
+	/**
+	 * 
+	 * @param boolean $pbIgnore
+	 * @return boolean
+	 */
+	public function flushDelete ()
+	{
+	    if ($this->_oConnection->delete($this))
+	    {
+	         $this->ResetObject();
+	         return true;
+	    }
+	    
+	    return false;
+	}	
+	
+	
+	/**
+	 * 
 	 * @param string $psWhere
 	 * @param number $pnLimit
 	 * @return boolean
 	 */
 	public function update ($psWhere = null, $pnLimit = 1)
 	{
-	    Debug::debug($this);
 	    if ($this->_oConnection->createQueryUpdate($this, $psWhere, $pnLimit))
 	    {
 	        if ($this->_oConnection->execute())

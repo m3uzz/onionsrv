@@ -135,7 +135,7 @@ abstract class AbstractController
 	    }
 	    else 
 	    {
-	        return Config::getOptions('validate');
+	        return Config::getOptions('params');
 	    }
 	}
 

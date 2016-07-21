@@ -384,6 +384,7 @@ class PDOMySql extends AbstractDriver
         	            case 'int':
         	            case 'decimal':
         	            case 'float':
+        	            case 'integer':
         	               if (!empty($lmValue))
         	               {
         	                   $lsValues .= $lsComma . "{$lmValue}";
@@ -451,6 +452,7 @@ class PDOMySql extends AbstractDriver
 	                case 'int':
 	                case 'decimal':
 	                case 'float':
+	                case 'integer':
 	                   if (!empty($lmValue))
         	           {
         	               $lsFieldValue = "`{$lsField}` = {$lmValue}";
@@ -543,6 +545,7 @@ class PDOMySql extends AbstractDriver
                 case 'int':
                 case 'decimal':
                 case 'float':
+                case 'integer':
                     $lsPk = "`{$poEntity->get('_sPk')}` = {$poEntity->get($poEntity->get('_sPk'))}";
                     break;
                 default:
@@ -638,6 +641,7 @@ class PDOMySql extends AbstractDriver
                 case 'int':
                 case 'decimal':
                 case 'float':
+                case 'integer':
                     $lsWhere = "`{$poEntity->get('_sPk')}` = {$pnId}";
                     break;
                 default:
@@ -752,6 +756,111 @@ class PDOMySql extends AbstractDriver
 			        
 			        $lnId = $this->lastInsertId();
                     $poEntity->set($poEntity->get('_sPk'), $lnId);
+			    }
+			    else
+			    {
+				    $this->setError($loStantement->errorInfo());
+			    }
+		    }
+		}
+
+		$this->close();
+			
+		return $lbReturn;
+	}
+	
+	
+	/**
+	 * 
+	 * @param object $poEntity
+	 * @return string
+	 */	
+	public function getWhere ($poEntity)
+	{
+	    $poEntity->getReflection();
+	    $lsField = $poEntity->get('_sPk');
+	    $lmValue = $poEntity->get($lsField);
+	    
+		$laFieldType = $poEntity->get('_aFieldType');
+	            
+	    switch ($laFieldType[$lsField])
+	    {
+	        case 'num':
+	        case 'int':
+	        case 'decimal':
+	        case 'float':
+	        case 'integer':
+	            if (!empty($lmValue))
+        	    {
+        	        $lsFieldValue = "`{$lsField}` = {$lmValue}";
+        	    }
+        	    else 
+        	    {
+        	        $lsFieldValue = "`{$lsField}` = NULL";
+        	    }	                    
+	            break;
+	        default:
+	            $lsFieldValue = "`{$lsField}` = '{$lmValue}'";
+	    }
+	    
+	    return $lsFieldValue;
+	}
+	
+	
+	/**
+	 * 
+	 * @param object $poEntity
+	 * @return boolean
+	 */
+	public function update ($poEntity)
+	{
+        $lsWhere = $this->getWhere($poEntity);
+	    
+	    if ($this->createQueryUpdate($poEntity, $lsWhere, 1))
+	    {
+    	    if ($this->connect())
+		    {
+			    $loStantement = $this->prepare();
+	
+			    $lbReturn = $loStantement->execute();
+			
+			    if ($lbReturn)
+			    {
+			        Debug::debug("SQL update OK");
+			    }
+			    else
+			    {
+				    $this->setError($loStantement->errorInfo());
+			    }
+		    }
+		}
+
+		$this->close();
+			
+		return $lbReturn;
+	}	
+	
+	
+	/**
+	 * 
+	 * @param object $poEntity
+	 * @return boolean
+	 */
+	public function delete ($poEntity)
+	{
+        $lsWhere = $this->getWhere($poEntity);
+	    
+	    if ($this->createQueryDelete($poEntity, $lsWhere, 1))
+	    {
+    	    if ($this->connect())
+		    {
+			    $loStantement = $this->prepare();
+	
+			    $lbReturn = $loStantement->execute();
+			
+			    if ($lbReturn)
+			    {
+			        Debug::debug("SQL delete OK");
 			    }
 			    else
 			    {
